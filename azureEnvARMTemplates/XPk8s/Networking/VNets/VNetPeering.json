@@ -1,0 +1,64 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "vnetApiVersion": "2020-11-01",
+    "hubVNetNameTidy": "[toLower(trim(parameters('hubVNetName')))]",
+    "spokeVNetNameTidy": "[toLower(trim(parameters('spokeVNetName')))]",
+    "hubVNet_id": "[resourceId('Microsoft.Network/virtualNetworks',parameters('hubVNetName'))]",
+    "spokeVNet_id": "[resourceId('Microsoft.Network/virtualNetworks',parameters('spokeVNetName'))]"
+  },
+  "parameters": {
+    "deploymentId": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "location": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "hubVNetName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-Hub-VNet')]"
+    },
+    "spokeVNetName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-Spoke-VNet')]"
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "[variables('vnetApiVersion')]",
+      "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+      "name": "[concat(parameters('hubVNetName'), '/peering_', variables('hubVNetNameTidy'), '_', variables('spokeVNetNameTidy'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "allowVirtualNetworkAccess": true,
+        "allowForwardedTraffic": true,
+        "allowGatewayTransit": true,
+        "useRemoteGateways": false,
+        "remoteVirtualNetwork": {
+          "id": "[variables('spokeVNet_id')]"
+        }
+      }
+    },
+    {
+      "apiVersion": "[variables('vnetApiVersion')]",
+      "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+      "name": "[concat(parameters('spokeVNetName'), '/gwPeering_', variables('spokeVNetNameTidy'), '_', variables('hubVNetNameTidy'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "allowVirtualNetworkAccess": true,
+        "allowForwardedTraffic": true,
+        "allowGatewayTransit": false,
+        "useRemoteGateways": false,
+        "remoteVirtualNetwork": {
+          "id": "[variables('hubVNet_id')]"
+        }
+      }
+    }
+  ]
+}

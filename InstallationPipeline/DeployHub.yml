@@ -1,0 +1,122 @@
+# Pipeline to validate and deploy ARM templates
+trigger: 
+ - none
+
+resources:
+- repo: self
+  clean: true
+
+parameters:
+  - name       : libraryName
+    displayName: 'Library that is used for environment deployment'
+    type       : string
+    default    : 'NWN.WebFrontEnd - Sandbox - Environment Installation'
+  - name        : deploySpoke
+    displayName : Deploy Spoke
+    type        : string
+    default     : "false"
+  - name        : deployHub
+    displayName : Deploy Hub
+    type        : string
+    default     : "true"
+
+variables:
+- template: shared/variables.yml
+  parameters:
+    libraryName: ${{ parameters.libraryName }}
+
+
+stages:
+    
+- stage: DeployToGlobalEnvironment
+  displayName: Deploy Hub to global resource group
+
+  jobs:
+    - job: DeploymentJob
+      displayName: Deploy ARM templates
+      pool:
+        vmImage: 'windows-latest'
+
+      steps:
+        - template: shared/addToStorage.yml
+
+        - task: AzureResourceManagerTemplateDeployment@3
+          displayName: Deploy Hub resources
+          inputs:
+            deploymentScope: 'Resource Group'
+            ConnectedServiceName: '$(serviceConnectionName)'
+            subscriptionName: '$(subscriptionId)'
+            action: 'Create Or Update Resource Group'
+            resourceGroupName: '$(resourceGroupName)'
+            location: '$(deploymentLocation)'
+            templateLocation: 'URL of the file'
+            csmFileLink: '$(artifactsLocation)azuredeploy.json$(artifactsLocationSasToken)'
+            csmParametersFileLink: '$(artifactsLocation)azuredeploy.parameters.json$(artifactsLocationSasToken)'
+            deploymentMode: 'Incremental'
+            deploymentOutputs: 'armOutputs'
+            overrideParameters: >-
+              -templateLinkBase "$(artifactsLocation)"
+              -templateLinkAccessToken "$(artifactsLocationSasToken)"
+              -deploymentId "$(spokeDeploymentId)"
+              -hubDeploymentId "$(hubDeploymentId)"
+              -location "$(deploymentLocation)"
+              -sitecoreSKU "$(sitecoreSKU)"
+              -deployHub "${{ parameters.deployHub }}"
+              -deploySpoke "${{ parameters.deploySpoke }}"
+              -teamAccount "$(teamAccount)"
+              -poolName "$(poolName)"
+              -patToken "$(patTokenForAgent)"
+              -additionalFilesLink "$(artifactsLocation)/AdditionalFiles"
+              -hubVNetAddressPrefix "$(hubVNetAddressPrefix)"
+              -hubGatewaySubnetAddressPrefix "$(hubGatewaySubnetAddressPrefix)"
+              -hubBastionSubnetAddressPrefix "$(hubBastionSubnetAddressPrefix)"
+              -hubAgentSubnetAddressPrefix "$(hubAgentSubnetAddressPrefix)"
+              -hubFirewallSubnetAddressPrefix "$(hubFirewallSubnetAddressPrefix)"
+              -spokeVNetAddressPrefix "$(spokeVNetAddressPrefix)"
+              -spokeAppGatewaySubnetAddressPrefix "$(spokeAppGatewaySubnetAddressPrefix)"
+              -spokePrivateSubnetAddressPrefix "$(spokePrivateSubnetAddressPrefix)"
+              -spokeClusterSubnetAddressPrefix "$(spokeClusterSubnetAddressPrefix)"
+              -vmAdminUserName "$(vmAdminUserName)"
+              -vmAdminPassword "$(vmAdminPassword)"
+              -ServiceConnectionAppObjectID "$(ServiceConnectionAppObjectID)"
+              -sqlServerLogin "$(sqlServerLogin)"
+              -sqlServerPassword "$(sqlServerPassword)"
+              -clusterManagedIdentityName "$(clusterManagedIdentityName)"
+              -sitecoreAdminPassword "$(sitecoreAdminPassword)"
+              -smmPassword "$(smmPassword)"
+              -smmUser "$(smmUser)"
+              -corePassword "$(corePassword)"
+              -coreUser "$(coreUser)"
+              -exmmasterPassword "$(exmmasterPassword)"
+              -exmmasterUser "$(exmmasterUser)"
+              -formsPassword "$(formsPassword)"
+              -formsUser "$(formsUser)"
+              -identitycertificatepassword "$(identitycertificatepassword)"
+              -identitysecret "$(identitysecret)"
+              -maPassword "$(maPassword)"
+              -maUser "$(maUser)"
+              -masterPassword "$(masterPassword)"
+              -masterUser "$(masterUser)"
+              -mediaSharedSecret "$(mediaSharedSecret)"
+              -messagingPassword "$(messagingPassword)"
+              -messagingUser "$(messagingUser)"
+              -processingenginePassword "$(processingenginePassword)"
+              -processingengineUser "$(processingengineUser)"
+              -poolsPassword "$(poolsPassword)"
+              -poolsUser "$(poolsUser)"
+              -tasksPassword "$(tasksPassword)"
+              -tasksUser "$(tasksUser)"
+              -refdataPassword "$(refdataPassword)"
+              -refdataUser "$(refdataUser)"
+              -reportingApiKey "$(reportingApiKey)"
+              -reportingPassword "$(reportingPassword)"
+              -reportingUser "$(reportingUser)"
+              -solrConnectionString "$(solrConnectionString)"
+              -solrConnectionStringXDB "$(solrConnectionStringXDB)"
+              -solrCorePrefix "$(solrCorePrefix)"
+              -telerikEncryptionKey "$(telerikEncryptionKey)"
+              -webPassword "$(webPassword)"
+              -webUser "$(webUser)"
+              -googleApiKey "$(googleApiKey)"  
+            
+        - template: shared/removeFromStorage.yml

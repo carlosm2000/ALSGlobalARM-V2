@@ -1,0 +1,146 @@
+{
+  "VSTS":{
+    "Uri": "https://vstsagentpackage.azureedge.net/agent/2.196.2/vsts-agent-win-x64-2.196.2.zip",
+    "Hash": "bed616f1a80bf673edaa472419cb638ac102f9aa43dc8711ea95b87a266f32ec",
+    "HashType": "SHA256",
+    "CmdLine": "config.cmd",
+    "EnvironmentalVariables": [
+      {
+        "Name": "DotNetFramework",
+        "Value": "C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319"
+      },
+      {
+        "Name": "Cmd",
+        "Value": "C:\\Windows\\system32\\cmd.exe"
+      }
+    ],
+    "PreRequirements":[
+      {
+        "dotnetFrameworkTls12":{
+          "PSLine": "New-ItemProperty -Path \"HKLM:\\SOFTWARE\\Microsoft\\.NETFramework\\v4.0.30319\" -Name SchUseStrongCrypto -Value 1 -PropertyType Dword -Force"
+        },
+        "dotnetFrameworkTls12_x86":{
+          "PSLine": "New-ItemProperty -Path \"HKLM:\\SOFTWARE\\Wow6432Node\\Microsoft\\.NETFramework\\v4.0.30319\" -Name SchUseStrongCrypto -Value 1 -PropertyType Dword -Force"
+        },
+        "LongPathsEnabled":{
+          "PSLine": "New-ItemProperty -Path \"HKLM:\\SYSTEM\\CurrentControlSet\\Control\\FileSystem\" -Name LongPathsEnabled -Value 1 -PropertyType Dword -Force"
+        },
+        "GIT": {  
+          "Uri": "https://github.com/git-for-windows/git/releases/download/v2.34.1.windows.1/Git-2.34.1-64-bit.exe",
+          "Hash": "d8769a1d90b2f1f7d85ae91e724c8dad16f340c5b130d49368a308dd086a5f52",
+          "HashType": "SHA256",
+          "CmdLine": "Git-2.34.1-64-bit.exe",
+          "Arguments": "/VERYSILENT /NORESTART",
+          "AddToPath": "C:\\Program Files\\Git\\Bin\\",
+          "EnvironmentalVariables": [
+            {
+              "Name": "curl",
+              "Value": "C:\\Program Files\\Git\\mingw64\\bin\\curl.exe"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "03_MSDeploy":{
+    "Uri": "https://download.microsoft.com/download/0/1/D/01DC28EA-638C-4A22-A57B-4CEF97755C6C/WebDeploy_amd64_en-US.msi",
+    "Hash": "2150f9d1ab67e1b7b63559fb977ba9adc49f2b064fe2669a2e70d313a36b9a3d",
+    "HashType": "SHA256",
+    "CmdLine": "WebDeploy_amd64_en-US.msi",
+    "AddToPath": "C:\\Program Files (x86)\\IIS\\Microsoft Web Deploy V3\\"
+  },
+  "02_AZCli":{
+    "Uri": "https://azcliprod.blob.core.windows.net/msi/azure-cli-2.32.0.msi",
+    "Hash": "3811e0da074b78993756ce2c074035432c3ee78b0575115436ffcdf7073d64b8",
+    "HashType": "SHA256",
+    "CmdLine": "azure-cli-2.32.0.msi",
+    "AddToPath": "C:\\Program Files (x86)\\Microsoft SDKs\\Azure\\CLI2\\wbin",
+    "EnvironmentalVariables": [
+      {
+        "Name": "azcli",
+        "Value": "C:\\Program Files (x86)\\Microsoft SDKs\\Azure\\CLI2\\wbin\\az.cmd"
+      }
+    ]
+  },
+  "04_NodeJS":{
+    "Uri": "https://nodejs.org/download/release/v10.13.0/node-v10.13.0-x64.msi",
+    "Hash": "a4810c4198d358bdc789a22e52fd86cb49cb9f7585f62215c6b9d0797b55113a",
+    "HashType": "SHA256",
+    "CmdLine": "node-v10.13.0-x64.msi",
+    "AddToPath": "C:\\Program Files\\nodejs\\",
+    "EnvironmentalVariables": [
+      {
+        "Name": "npm",
+        "Value": "C:\\Program Files\\nodejs\\npm.cmd"
+      },
+      {
+        "Name": "node.js",
+        "Value": "C:\\Program Files\\nodejs\\node.exe"
+      }
+    ],
+    "AdditionalCmd": "npm install -g gulp"
+  },
+  "05_SQLPackage":{
+    "Uri": "https://download.microsoft.com/download/b/3/d/b3d9f235-6bb7-4ba0-bb8f-19a267cb8fd4/SSDT-Setup-ENU.exe",
+    "Hash": "813ef6867d3c8c8c8d27a8deec5128b5e2d0c2d6fd4efb80e3435da718b96453",
+    "HashType": "SHA256",
+    "CmdLine": "SSDT-Setup-ENU.exe",
+    "Arguments": "/install INSTALLVSSQL /quiet /norestart",
+    "AddToPath": "C:\\Program Files\\Microsoft SQL Server\\140\\DAC\\bin\\",
+    "EnvironmentalVariables": [
+      {
+        "Name": "SqlPackage",
+        "Value": "C:\\Program Files\\Microsoft SQL Server\\140\\DAC\\bin\\SqlPackage.exe"
+      }
+    ],
+    "PreRequirements": [
+      {
+        "DACFX":{
+          "Uri": "https://download.microsoft.com/download/c/2/9/c29fc40a-fd97-4d36-9211-6f2c50122671/x64/DacFramework.msi",
+          "Hash": "a6273d7415128c7c5515561ce28872d297686d5b0d904885f69cc2304e09af6b",
+          "HashType": "SHA256",
+          "CmdLine": "DacFramework.msi"
+        }
+      }
+    ]
+  },
+  "01_AzureRM": {
+    "PSLine": "Install-Module AzureRM -Force -AllowClobber -RequiredVersion 6.13.2",
+    "EnvironmentalVariables": [
+      {
+        "Name": "AzurePS",
+        "Value": "6.13.2"
+      }
+    ]
+  },
+  "06_netFramework48": {
+    "PSLine": "choco install netfx-4.8-devpack --yes --force --force-dependencies"
+  },
+  "07_Kubectl": {
+    "PSLine": "choco install kubernetes-cli --yes --force --force-dependencies"
+  },
+  "08_helm": {
+      "PSLine": "choco install kubernetes-helm --yes --force --force-dependencies"
+  },
+  "09_openssl": {
+    "PSLine": "choco install openssl --yes --force --force-dependencies"
+  },
+  "10_chrome": {
+    "PSLine": "choco install googlechrome --yes --force --force-dependencies"
+  },
+  "11_EnableHyperVRes": {
+      "PSLine": "Install-WindowsFeature -Name Hyper-V -IncludeManagementTools"
+  },
+  "12_ContainersRes": {
+    "PSLine": "Install-WindowsFeature containers"
+  },
+  "13_DockerModule": {
+    "PSLine": "Install-Module -Name DockerMsftProvider -Repository PSGallery -Force"
+  },
+  "14_Docker": {
+    "PSLine": "Install-Package -Name docker -ProviderName DockerMsftProvider -Force"
+  },
+  "15_Docker": {
+    "PSLine": "Invoke-WebRequest 'https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Windows-x86_64.exe' -UseBasicParsing -OutFile $Env:ProgramFiles\\docker\\docker-compose.exe"
+  }
+}

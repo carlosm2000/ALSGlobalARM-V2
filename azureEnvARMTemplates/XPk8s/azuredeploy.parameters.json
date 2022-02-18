@@ -1,0 +1,197 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "templateLinkBase":{
+      "value": "https://bxsitecoretemplates.blob.core.windows.net/arm-templates/"
+    },
+    "templateLinkAccessToken": {
+      "value": "?sv=2020-08-04&ss=bf&srt=sco&sp=rwdlacitfx&se=2022-12-23T10:22:10Z&st=2021-12-23T02:22:10Z&spr=https&sig=a7BeN2B0XVR2SsVlW34VKGK02HNe%2FyQXnQOANmIzlFQ%3D"
+    },
+    "deploymentId": {
+      "value": "webfrontend-bx"
+    },
+    "hubDeploymentId": {
+      "value": "webfrontend-bx"
+    },
+    "location": {
+      "value": "westus2"
+    },
+    "sitecoreSKU": {
+      "value": "Small"
+    },
+    "deployHub": {
+      "value": true
+    },
+    "deploySpoke": {
+      "value": true
+    },
+    "teamAccount": {
+      "value": "nwnatural"
+    },
+    "poolName": {
+      "value": "webfrontend-bx-agent-pool"
+    },
+    "patToken": {
+      "value": "cpnd4vmxid7yexr3ly6rgrat3gpsjmc2uegqyv2jozxj7q76jviq"
+    },
+    "additionalFilesLink": {
+      "value": "https://bxsitecoretemplates.blob.core.windows.net/arm-templates/AdditionalFiles"
+    },
+    "hubVNetAddressPrefix": {
+      "value": "10.1.0.0/24"
+    },
+    "hubGatewaySubnetAddressPrefix": {
+      "value": "10.1.0.0/26"
+    },
+    "hubBastionSubnetAddressPrefix": {
+      "value": "10.1.0.64/26"
+    },
+    "hubAgentSubnetAddressPrefix":{
+      "value": "10.1.0.128/26"
+    },
+    "hubFirewallSubnetAddressPrefix": {
+      "value": "10.1.0.192/26"
+    },
+    "spokeVNetAddressPrefix": {
+      "value": "10.4.0.0/20"
+    },
+    "spokeAppGatewaySubnetAddressPrefix": {
+      "value": "10.4.15.192/26"
+    },
+    "spokePrivateSubnetAddressPrefix": {
+      "value": "10.4.15.128/26"
+    },
+    "spokeClusterSubnetAddressPrefix": {
+      "value": "10.4.0.0/21"
+    },
+    "vmAdminUserName": {
+      "value": "NWNatural"
+    },
+    "vmAdminPassword": {
+      "value": "Password12345!!"
+    },
+    "sqlServerLogin": {
+      "value": "NWNatural"
+    },
+    "sqlServerPassword": {
+      "value": "Password12345!!"
+    },
+    "clusterManagedIdentityName": {
+      "value": "siteCoreBxMngIdent"
+    },
+    "ServiceConnectionAppObjectID": {
+      "value": "123456789"
+    },
+
+
+    "sitecoreAdminPassword": {
+      "value": "Password12345!!"
+    },
+    "smmPassword": {
+      "value": "Password12345!!"
+    },
+    "smmUser": {
+      "value": "smmuser"
+    },
+    "corePassword": {
+      "value": "Password12345!!"
+    },
+    "coreUser": {
+      "value": "coreuser"
+    },
+    "exmmasterPassword": {
+      "value": "Password12345!!"
+    },
+    "exmmasterUser": {
+      "value": "exmmasteruser"
+    },
+    "formsPassword": {
+      "value": "Password12345!!"
+    },
+    "formsUser": {
+      "value": "formsuser"
+    },
+    "identitycertificatepassword": {
+      "value": "Password12345!!"
+    },
+    "identitysecret": {
+      "value": "fPH4e4z4gNvyxxHHgvVz4ygYWg7SiGDDqaLXi3nmuDMaHpknlfmT3kFsJ755i7Kh"
+    },
+    "maPassword": {
+      "value": "Password12345!!"
+    },
+    "maUser": {
+      "value": "mauser"
+    },
+    "masterPassword": {
+      "value": "Password12345!!"
+    },
+    "masterUser": {
+      "value": "masteruser"
+    },
+    "mediaSharedSecret": {
+      "value": "HQ(NjM(u6_5koVla-cTf4ta8x1h6Sb+ZcUQrULUz-0Afpx0cx-NuMtIoQkpDFmX5"
+    },
+    "messagingPassword": {
+      "value": "Password12345!!"
+    },
+    "messagingUser": {
+      "value": "messaginguser"
+    },
+    "processingenginePassword": {
+      "value": "Password12345!!"
+    },
+    "processingengineUser": {
+      "value": "processingengineuser"
+    },
+    "poolsPassword": {
+      "value": "Password12345!!"
+    },
+    "poolsUser": {
+      "value": "poolsuser"
+    },
+    "tasksPassword": {
+      "value": "Password12345!!"
+    },
+    "tasksUser": {
+      "value": "tasksuser"
+    },
+    "refdataPassword": {
+      "value": "Password12345!!"
+    },
+    "refdataUser": {
+      "value": "refdatauser"
+    },
+    "reportingApiKey": {
+      "value": "67588d50667e47e0a02cb919185f7c3012312312312356547567"
+    },
+    "reportingPassword": {
+      "value": "Password12345!!"
+    },
+    "reportingUser": {
+      "value": "reportinguser"
+    },
+    "solrConnectionString": {
+      "value": "http://solr:8983/solr;solrCloud=true"
+    },
+    "solrConnectionStringXDB": {
+      "value": "http://solr:8983/solr/sitecore_xdb;solrCloud=true"
+    },
+    "solrCorePrefix": {
+      "value": "nwn_"
+    },
+    "telerikEncryptionKey": {
+      "value": "ga6DBZFZmIG6JBdxU4OFBi5oWqgXq9t5yrLfNSY8miK7Eb8oweqHx6A1iWf4BKONj8jO6E4ndJ6W5uVgSnJpIajHYp8gP6KTietTWM3GjpFkSa3y9rkMycth50uZ84LqzrMD6F0FkXaU6fXXW1DP3jX7WGRehSUpt1HqQH48ZnbptPTGPNpx3kr9BEvgDvdGxKOwpW5BKTihktk0o4B7SlJLHhidNx8em8xXc9JQJqWA7SZj3zHZrupgeLCylGX4"
+    },
+    "webPassword": {
+      "value": "Password12345!!"
+    },
+    "webUser": {
+      "value": "webuser"
+    },
+    "googleApiKey": {
+      "value": "123456"
+    }
+  }
+}

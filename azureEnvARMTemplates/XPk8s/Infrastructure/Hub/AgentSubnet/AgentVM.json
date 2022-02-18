@@ -1,0 +1,219 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "apiVersion": {
+      "publicIp": "2020-05-01",
+      "network": "2020-04-01",
+      "vm": "2020-06-01",
+      "storage": "2019-06-01"
+    },
+    "agentNetworkInterfaceNameTidy": "[toLower(trim(parameters('agentNetworkInterfaceName')))]",
+    "agentPublicIPNameTidy": "[toLower(trim(parameters('agentPublicIPName')))]",
+    "agentVMNameTidy": "[toLower(trim(parameters('agentVMName')))]",
+    "agentVMDiskNameTidy": "[toLower(trim(concat(variables('agentVMNameTidy'),'_OSDisk')))]",
+    "hubVNetNameTidy": "[toLower(trim(parameters('hubVNetName')))]",
+    "hubAgentSubnetNameTidy": "[toLower(trim(parameters('hubAgentSubnetName')))]",
+    "agentStorageAccountName": "[format('agbootdiags{0}', uniqueString(resourceGroup().id))]",
+    "agentPublicIP_id": "[resourceId('Microsoft.Network/publicIpAddresses',variables('agentPublicIPNameTidy'))]",
+    "agentNetworkInterface_id": "[resourceId('Microsoft.Network/networkInterfaces/', variables('agentNetworkInterfaceNameTidy'))]",
+    "agentStorageAccount_id": "[resourceId('Microsoft.Storage/storageAccounts', variables('agentStorageAccountName'))]",
+    "hubAgentSubnet_id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('hubVNetNameTidy'),variables('hubAgentSubnetNameTidy'))]"
+  },
+  "parameters": {
+    "deploymentId": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "location": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "templateLinkAccessToken": {
+      "type": "securestring",
+      "defaultValue": ""
+    },
+    "vmAdminUserName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "vmAdminPassword": {
+      "type": "string",
+      "minLength": 1
+    },
+    "agentNetworkInterfaceName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-agent-nic')]"
+    },
+    "agentPublicIPName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-agent-PublicIP')]"
+    },
+    "agentVMName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "Agent-VM"
+    },
+    "hubVNetName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-Hub-VNet')]"
+    },
+    "hubAgentSubnetName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-Agent-Subnet')]"
+    },
+    "TeamAccount": {
+        "type": "string"
+    },
+    "PoolName": {
+        "type": "string"
+    },
+    "PATToken": {
+        "type": "securestring"
+    },
+    "additionalFilesLink": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "[variables('apiVersion').storage]",
+      "name": "[variables('agentStorageAccountName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "Storage"
+    },
+    {
+        "comments": "Public IP address for Agent VM",
+        "apiVersion": "[variables('apiVersion').publicIp]",
+        "type": "Microsoft.Network/publicIPAddresses",
+        "name": "[variables('agentPublicIPNameTidy')]",
+        "location": "[parameters('location')]",
+        "sku": {
+            "name": "Standard"
+        },
+        "properties": {
+            "publicIPAllocationMethod": "Static"
+        }
+    },
+    {
+      "comments": "Network Interface card for Agent VM",
+      "apiVersion": "[variables('apiVersion').network]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('agentNetworkInterfaceNameTidy')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[variables('agentPublicIP_id')]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('hubAgentSubnet_id')]"
+              },
+              "publicIPAddress": {
+                "id": "[variables('agentPublicIP_id')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "comments": "Deployment Agent VM",
+      "apiVersion": "[variables('apiVersion').vm]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[variables('agentVMNameTidy')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[variables('agentNetworkInterface_id')]",
+        "[variables('agentStorageAccount_id')]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_D8_v3"
+        },
+        "osProfile": {
+          "computerName": "[variables('agentVMNameTidy')]",
+          "adminUsername": "[parameters('vmAdminUserName')]",
+          "adminPassword": "[parameters('vmAdminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "MicrosoftVisualStudio",
+            "offer": "visualstudio2019latest",
+            "sku": "vs-2019-comm-latest-ws2019",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "[variables('agentVMDiskNameTidy')]",
+            "caching": "ReadWrite",
+            "createOption": "FromImage",
+            "diskSizeGB": 511,
+            "managedDisk": {
+              "storageAccountType": "StandardSSD_LRS"
+            }
+          },
+          "dataDisks": [
+            {
+              "diskSizeGB": 511,
+              "lun": 0,
+              "createOption": "Empty"
+            }
+          ]
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[variables('agentNetworkInterface_id')]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts', variables('agentStorageAccountName'))).primaryEndpoints.blob]"
+          }
+        }
+      },
+      "resources": [
+        {
+          "type": "extensions",
+          "name": "AzureDevOpsAgent",
+          "apiVersion": "2018-06-01",
+          "location": "[parameters('location')]",
+          "dependsOn": [
+            "[concat('Microsoft.Compute/virtualMachines/', variables('agentVMNameTidy'))]"
+          ],
+          "properties": {
+            "publisher": "Microsoft.Compute",
+            "type": "CustomScriptExtension",
+            "autoUpgradeMinorVersion": true,
+            "typeHandlerVersion": "1.9",
+            "settings": {
+              "fileUris": [
+                "[concat(parameters('additionalFilesLink'), '/SelfHostedAgent/ConfigureAgent.ps1', parameters('templateLinkAccessToken'))]",
+                "[concat(parameters('additionalFilesLink'), '/SelfHostedAgent/software.json', parameters('templateLinkAccessToken'))]"
+              ]
+            },
+            "protectedSettings": {
+              "commandToExecute": "[concat('powershell.exe -ExecutionPolicy ByPass -File \".\\AdditionalFiles\\SelfHostedAgent\\ConfigureAgent.ps1\" -TeamAccount \"',parameters('TeamAccount'),'\" -PoolName \"',parameters('PoolName'),'\" -PATToken \"',parameters('PATToken'),'\" ')]"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

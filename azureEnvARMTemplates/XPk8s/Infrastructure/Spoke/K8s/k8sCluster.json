@@ -1,0 +1,356 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "apiVersion": {
+      "aks": "2020-11-01"
+    },
+    "clusterNameTidy": "[toLower(trim(parameters('clusterName')))]",
+    "dnsPrefixTidy": "[toLower(trim(parameters('dnsPrefix')))]",
+    "linuxPoolNameTidy": "[toLower(trim(parameters('linuxPoolName')))]",
+    "windowsPoolNameTidy": "[toLower(trim(parameters('windowsPoolName')))]",
+    "spokeVNetNameTidy": "[toLower(trim(parameters('spokeVNetName')))]",
+    "spokeClusterSubnetNameTidy": "[toLower(trim(parameters('spokeClusterSubnetName')))]",
+    "insightsWorkspaceNameTidy": "[toLower(trim(parameters('insightsWorkspaceName')))]",
+    "appGwNameTidy": "[toLower(trim(parameters('appGwName')))]",
+    "spokeClusterSubnet_id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('spokeVNetNameTidy'),variables('spokeClusterSubnetNameTidy'))]",
+    "insigthsWorkspace_id": "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('insightsWorkspaceNameTidy'))]",
+    "aksClusterUserDefinedManagedIdentityId": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities',parameters('clusterManagedIdentityName'))]",
+    "appGw_id": "[resourceId('Microsoft.Network/applicationGateways', variables('appGwNameTidy'))]",
+    "sitecoreTags": {
+      "provider": "b51535c2-ab3e-4a68-95f8-e2e3c9a19299"
+    }
+  },
+  "parameters": {
+    "deploymentId": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "location": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "sitecoreSKU": {
+      "type": "string",
+      "allowedValues": [ "Extra Small", "Small", "Medium", "Large", "Extra Large", "2x Large", "3x Large" ],
+      "defaultValue": "Small",
+      "metadata": {
+        "description": "Sitecore SKU controls the sizes and service levels of the provisioned resources"
+      }
+    },
+    "clusterName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-aks-cluster')]"
+    },
+    "dnsPrefix": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-aks')]"
+    },
+    "linuxPoolName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 11,
+      "defaultValue": "linuxnp"
+    },
+    "windowsPoolName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 6,
+      "defaultValue": "winnp"
+    },
+    "kubernetesVersion": {
+      "type": "string",
+      "defaultValue":"1.21.7",
+      "metadata": {
+        "description": "Kubernetes version"
+      }
+    },
+    "enableRBAC": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "spokeVNetName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-Spoke-VNet')]"
+    },
+    "spokeClusterSubnetName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-Cluster-Subnet')]"
+    },
+    "dockerBridgeCidr": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "172.17.0.1/16"
+    },
+    "clusterServiceCidr": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "10.0.0.0/21"
+    },
+    "clusterDnsServiceIp": {
+      "type": "string",
+      "minLength": 7,
+      "maxLength": 15,
+      "defaultValue": "10.0.0.10"
+    },
+    "insightsWorkspaceName": {
+      "type": "string",
+      "defaultValue": "[concat(parameters('deploymentId'), '-Insigths-Workspace')]",
+      "metadata": {
+        "description": "Log Analytics workspace name that has the Container Insights solution enabled"
+      }
+    },
+    "clusterManagedIdentityName": {
+      "type": "string",
+      "minLength": 1
+    },
+
+    "windowsUsername": {
+      "type": "string",
+      "minLength": 1
+    },
+    "windowsPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Specifies the password for k8s windows nodes."
+      }
+    },
+    "linuxUsername": {
+      "type": "string",
+      "minLength": 1
+    },
+    "linuxSSHKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Specifies the SSH Key for k8s linux nodes."
+      }
+    },
+
+    "appGwName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-spoke-app-Gateway')]"
+    },
+
+    "skuMap": {
+      "type": "secureObject",
+      "defaultValue": {
+        "Extra Small": {
+          "aks": {
+            "tier": "Free"
+          },
+          "windowsNode":{
+            "count" : 1,
+            "vmSize": "Standard_DS4_v2"
+          },
+          "availabilityZones":{
+            "zone": [ "1" ]
+          }
+        },
+        "Small": {
+          "aks": {
+            "tier": "Free"
+          },
+          "windowsNode":{
+            "count" : 2,
+            "vmSize": "Standard_DS4_v2"
+          },
+          "availabilityZones":{
+            "zone": [ "1" ]
+          }
+        },
+        "Medium": {
+          "aks": {
+            "tier": "Paid"
+          },
+          "windowsNode":{
+            "count" : 2,
+            "vmSize": "Standard_DS4_v2"
+          },
+          "availabilityZones":{
+            "zone": [ "1", "2" ]
+          }
+        },
+        "Large": {
+          "aks": {
+            "tier": "Paid"
+          },
+          "windowsNode":{
+            "count" : 3,
+            "vmSize": "Standard_DS4_v2"
+          },
+          "availabilityZones":{
+            "zone": [ "1", "2" ]
+          }
+        },
+        "Extra Large": {
+          "aks": {
+            "tier": "Paid"
+          },
+          "windowsNode":{
+            "count" : 4,
+            "vmSize": "Standard_DS4_v2"
+          },
+          "availabilityZones":{
+            "zone": [ "1", "2", "3" ]
+          }
+        },
+        "2x Large": {
+          "aks": {
+            "tier": "Paid"
+          },
+          "windowsNode":{
+            "count" : 6,
+            "vmSize": "Standard_DS4_v2"
+          },
+          "availabilityZones":{
+            "zone": [ "1", "2", "3" ]
+          }
+        },
+        "3x Large": {
+          "aks": {
+            "tier": "Paid"
+          },
+          "windowsNode":{
+            "count" : 11,
+            "vmSize": "Standard_DS4_v2"
+          },
+          "availabilityZones":{
+            "zone": [ "1", "2", "3" ]
+          }
+        }
+      }
+    },
+    "resourceSizes": {
+      "type": "object",
+      "defaultValue": "[parameters('skuMap')[parameters('sitecoreSKU')]]"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "[variables('apiVersion').aks]",
+      "name": "[variables('clusterNameTidy')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "provider": "[variables('sitecoreTags').provider]"
+      },
+      "identity": {
+        "principalId": null,
+        "tenantId": null,
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[variables('aksClusterUserDefinedManagedIdentityId')]": {}
+        }
+      },
+      "sku": {
+        "name": "Basic",
+        "tier":"[parameters('resourceSizes').aks.tier]"
+      },
+      "properties": {
+        "kubernetesVersion": "[parameters('kubernetesVersion')]",
+        "enableRBAC": "[parameters('enableRBAC')]",
+        "dnsPrefix": "[variables('dnsPrefixTidy')]",
+        "identityProfile": {
+          "kubeletidentity": {
+            "resourceId": "[variables('aksClusterUserDefinedManagedIdentityId')]",
+            "clientId": "[reference(variables('aksClusterUserDefinedManagedIdentityId'), '2018-11-30').clientId]",
+            "objectId": "[reference(variables('aksClusterUserDefinedManagedIdentityId'), '2018-11-30').principalId]"
+          }
+        },
+        "addonProfiles": {
+          "kubeDashboard": {
+            "enabled": false
+          },
+          "httpApplicationRouting": {
+            "enabled": true
+          },
+          "omsagent": {
+            "enabled": true,
+            "config": {
+              "logAnalyticsWorkspaceResourceID": "[variables('insigthsWorkspace_id')]"
+            }
+          },
+          "aciConnectorLinux": {
+            "enabled": false
+          },
+          "azurepolicy": {
+            "enabled": true,
+            "config": {
+              "version": "v2"
+            }
+          },
+          "ingressApplicationGateway": {
+            "config": {
+              "applicationGatewayId": "[variables('appGw_id')]"
+            },
+            "enabled": true,
+            "identity": {
+              "clientId": "[reference(variables('aksClusterUserDefinedManagedIdentityId'), '2018-11-30').clientId]",
+              "objectId": "[reference(variables('aksClusterUserDefinedManagedIdentityId'), '2018-11-30').principalId]",
+              "resourceId": "[variables('aksClusterUserDefinedManagedIdentityId')]"
+            }
+          }
+        },
+        "networkProfile": {
+          "dockerBridgeCidr": "[parameters('dockerBridgeCidr')]",
+          "serviceCidr": "[parameters('clusterServiceCidr')]",
+          "dnsServiceIp": "[parameters('clusterDnsServiceIp')]",
+          "networkPlugin": "azure",
+          "loadBalancerSku": "standard",
+          "outboundType": "loadBalancer",
+          "networkPolicy": "calico"
+        },
+        "apiServerAccessProfile": {
+          "enablePrivateCluster": true
+        },
+        "agentPoolProfiles": [
+          {
+            "name": "[variables('linuxPoolNameTidy')]",
+            "orchestratorVersion": "[parameters('kubernetesVersion')]",
+            "count": 1,
+            "vmSize": "Standard_DS2_v2",
+            "availabilityProfile": "VirtualMachineScaleSets",
+            "osType": "Linux",
+            "mode": "System",
+            "vnetSubnetID": "[variables('spokeClusterSubnet_id')]",
+            "availabilityZones": "[parameters('resourceSizes').availabilityZones.zone]"
+          },
+          {
+            "name": "[variables('windowsPoolNameTidy')]",
+            "orchestratorVersion": "[parameters('kubernetesVersion')]",
+            "count": "[parameters('resourceSizes').windowsNode.count]",
+            "vmSize": "[parameters('resourceSizes').windowsNode.vmSize]",
+            "vnetSubnetID": "[variables('spokeClusterSubnet_id')]",
+            "availabilityZones": "[parameters('resourceSizes').availabilityZones.zone]",
+            "maxPods": 250,
+            "availabilityProfile": "VirtualMachineScaleSets",
+            "osType": "Windows",
+            "mode": "User"
+          }
+        ],
+        "windowsProfile": {
+          "adminUsername": "[parameters('windowsUsername')]",
+          "adminPassword": "[parameters('windowsPassword')]"
+        },
+        "linuxProfile": {
+          "adminUsername": "[parameters('linuxUsername')]",
+          "ssh": {
+            "publicKeys": [
+              {
+                "keyData": "[parameters('linuxSSHKey')]"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

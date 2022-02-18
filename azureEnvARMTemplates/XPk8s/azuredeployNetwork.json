@@ -1,0 +1,347 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "resourcesApiVersion": "2018-05-01"
+  },
+  "parameters": {
+    "templateLinkBase": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[uri(replace(json(string(deployment().properties.templateLink)).uri,' ','%20'), '.')]"
+    },
+    "templateLinkAccessToken": {
+      "type": "securestring",
+      "defaultValue": ""
+    },
+
+    "deploymentId": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "hubDeploymentId": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "deployHub":{
+      "type": "bool",
+      "defaultValue": "[bool('true')]"
+    },
+    "deploySpoke":{
+      "type": "bool",
+      "defaultValue": "[bool('true')]"
+    },
+    "location": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "sitecoreSKU": {
+      "type": "string",
+      "allowedValues": [ "Extra Small", "Small", "Medium", "Large", "Extra Large", "2x Large", "3x Large" ],
+      "defaultValue": "Small",
+      "metadata": {
+        "description": "Sitecore SKU controls the sizes and service levels of the provisioned resources"
+      }
+    },
+    "teamAccount": {
+        "type": "string"
+    },
+    "poolName": {
+        "type": "string"
+    },
+    "patToken": {
+        "type": "securestring"
+    },
+    "additionalFilesLink": {
+      "type": "string",
+      "minLength": 1
+    },
+    "hubVNetAddressPrefix": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "10.1.0.0/24"
+    },
+    "hubGatewaySubnetAddressPrefix": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "10.1.0.0/26"
+    },
+    "hubBastionSubnetAddressPrefix": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "10.1.0.64/26"
+    },
+    "hubAgentSubnetAddressPrefix":{
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "10.1.0.128/26"
+    },
+    "hubFirewallSubnetAddressPrefix": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "10.1.0.192/26"
+    },
+    "spokeVNetAddressPrefix": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "10.0.0.0/20"
+    },
+    "spokeAppGatewaySubnetAddressPrefix": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "10.0.15.192/26"
+    },
+    "spokePrivateSubnetAddressPrefix": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "10.0.15.128/26"
+    },
+    "spokeClusterSubnetAddressPrefix": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "10.0.8.0/22"
+    },
+    "vmAdminUserName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "vmAdminPassword": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sqlServerLogin": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sqlServerPassword": {
+      "type": "securestring",
+      "minLength": 8
+    },
+    "clusterManagedIdentityName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ServiceConnectionAppObjectID": {
+      "type": "securestring",
+      "minLength": 8
+    },
+
+    "sitecoreAdminPassword": {
+      "type": "securestring",
+      "minLength": 8
+    },
+    "smmPassword": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "smmUser": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "corePassword": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "coreUser": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "exmmasterPassword": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "exmmasterUser": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "formsPassword": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "formsUser": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "identitycertificatepassword": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "identitysecret": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "maPassword": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "maUser": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "masterPassword": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "masterUser": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "mediaSharedSecret": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "messagingPassword": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "messagingUser": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "processingenginePassword": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "processingengineUser": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "poolsPassword": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "poolsUser": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "tasksPassword": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "tasksUser": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "refdataPassword": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "refdataUser": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "reportingApiKey": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "reportingPassword": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "reportingUser": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "solrConnectionString": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "solrConnectionStringXDB": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "solrCorePrefix": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "telerikEncryptionKey": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "webPassword": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "webUser": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "googleApiKey": {
+      "type": "securestring",
+      "minLength": 2
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "[variables('resourcesApiVersion')]",
+      "name": "[concat(parameters('deploymentId'), '-Networking')]",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(uri(parameters('templateLinkBase'), 'Networking/NetworkingWrapper.json'), parameters('templateLinkAccessToken'))]"
+        },
+        "parameters": {
+          "templateLinkBase": {
+            "value": "[concat(parameters('templateLinkBase'),'Networking/')]"
+          },
+          "templateLinkAccessToken": {
+            "value": "[parameters('templateLinkAccessToken')]"
+          },
+          "deploymentId": {
+            "value": "[parameters('deploymentId')]"
+          },
+          "hubDeploymentId": {
+            "value": "[parameters('hubDeploymentId')]"
+          },
+          "deployHub": {
+            "value": "[parameters('deployHub')]"
+          },
+          "deploySpoke": {
+            "value": "[parameters('deploySpoke')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "hubVNetAddressPrefix": {
+            "value": "[parameters('hubVNetAddressPrefix')]"
+          },
+          "hubGatewaySubnetAddressPrefix": {
+            "value": "[parameters('hubGatewaySubnetAddressPrefix')]"
+          },
+          "hubBastionSubnetAddressPrefix": {
+            "value": "[parameters('hubBastionSubnetAddressPrefix')]"
+          },
+          "hubAgentSubnetAddressPrefix":{
+            "value": "[parameters('hubAgentSubnetAddressPrefix')]"
+          },
+          "hubFirewallSubnetAddressPrefix": {
+            "value": "[parameters('hubFirewallSubnetAddressPrefix')]"
+          },
+          "spokeVNetAddressPrefix": {
+            "value": "[parameters('spokeVNetAddressPrefix')]"
+          },
+          "spokeAppGatewaySubnetAddressPrefix": {
+            "value": "[parameters('spokeAppGatewaySubnetAddressPrefix')]"
+          },
+          "spokePrivateSubnetAddressPrefix": {
+            "value": "[parameters('spokePrivateSubnetAddressPrefix')]"
+          },
+          "spokeClusterSubnetAddressPrefix": {
+            "value": "[parameters('spokeClusterSubnetAddressPrefix')]"
+          }
+        }
+      }
+    }
+  ]
+}

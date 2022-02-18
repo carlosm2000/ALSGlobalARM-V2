@@ -1,0 +1,139 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "apiVersion": {
+      "acr": "2019-05-01",
+      "privateEndpoint": "2020-04-01",
+      "privateDnsZones": "2018-09-01",
+      "privateDnsZoneGroups": "2020-03-01"
+    },
+    "acrNameTidy": "[toLower(trim(parameters('acrName')))]",
+    "acrPrivateEndpointNameTidy":"[toLower(trim(parameters('acrPrivateEndpointName')))]",
+    "hubVNetNameTidy": "[toLower(trim(parameters('hubVNetName')))]",
+    "hubAgentSubnetNameTidy": "[toLower(trim(parameters('hubAgentSubnetName')))]",
+    "acrPrivateDnsZoneName": "privatelink.azurecr.io",
+    "acr_id": "[resourceId('Microsoft.ContainerRegistry/registries', variables('acrNameTidy'))]",
+	  "hubAgentSubnet_id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('hubVNetNameTidy'),variables('hubAgentSubnetNameTidy'))]",
+    "hubVNet_id": "[resourceId('Microsoft.Network/virtualNetworks', variables('hubVNetNameTidy'))]",
+    "acrPrivateEndpoint_id": "[resourceId('Microsoft.Network/privateEndpoints', variables('acrPrivateEndpointNameTidy'))]",
+    "acrPrivateDnsZone_id": "[resourceId('Microsoft.Network/privateDnsZones', variables('acrPrivateDnsZoneName'))]"
+  },
+  "parameters": {
+    "deploymentId": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "location": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "acrName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 50,
+      "defaultValue": "[replace(concat(parameters('deploymentId'), '-acr'),'-','')]"
+    },
+    "acrPrivateEndpointName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-acr-private-endpoint')]"
+    },
+    "hubVNetName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-Hub-VNet')]"
+    },
+    "hubAgentSubnetName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-Agent-Subnet')]"
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "[variables('apiVersion').acr]",
+      "type": "Microsoft.ContainerRegistry/registries",
+      "name": "[variables('acrNameTidy')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Premium"
+      },
+      "properties": {
+        "adminUserEnabled": "true"
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateDnsZones",
+      "apiVersion": "[variables('apiVersion').privateDnsZones]",
+      "name": "[variables('acrPrivateDnsZoneName')]",
+      "location": "global",
+      "properties": {
+        "maxNumberOfRecordSets": 25000,
+        "maxNumberOfVirtualNetworkLinks": 1000,
+        "maxNumberOfVirtualNetworkLinksWithRegistration": 100
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+      "apiVersion": "[variables('apiVersion').privateDnsZones]",
+      "name": "[concat(variables('acrPrivateDnsZoneName'), '/acr_private_link')]",
+      "location": "global",
+      "dependsOn": [
+        "[variables('acrPrivateDnsZone_id')]"
+      ],
+      "properties": {
+        "registrationEnabled": false,
+        "virtualNetwork": {
+          "id": "[variables('hubVNet_id')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints",
+      "apiVersion": "[variables('apiVersion').privateEndpoint]",
+      "name": "[variables('acrPrivateEndpointNameTidy')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[variables('acr_id')]"
+      ],
+      "properties": {
+        "privateLinkServiceConnections": [
+          {
+            "name": "[variables('acrPrivateEndpointNameTidy')]",
+            "properties": {
+              "privateLinkServiceId": "[variables('acr_id')]",
+              "groupIds": [
+                "registry"
+              ]
+            }
+          }
+        ],
+        "subnet": {
+          "id": "[variables('hubAgentSubnet_id')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+      "apiVersion": "[variables('apiVersion').privateDnsZoneGroups]",
+      "name": "[concat(variables('acrPrivateEndpointNameTidy'),'/', 'registry', 'PrivateDnsZoneGroup')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[variables('acrPrivateDnsZone_id')]",
+        "[variables('acrPrivateEndpoint_id')]"
+      ],
+      "properties": {
+        "privateDnsZoneConfigs": [
+          {
+            "name": "dnsConfig",
+            "properties": {
+              "privateDnsZoneId": "[variables('acrPrivateDnsZone_id')]"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

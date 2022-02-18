@@ -1,0 +1,252 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "apiVersion": {
+      "vnet": "2020-11-01",
+      "nsg": "2020-07-01"
+    },
+    "hubVNetNameTidy": "[toLower(trim(parameters('hubVNetName')))]",
+    "hubNSGNameTidy": "[toLower(trim(parameters('hubNSG_name')))]",
+    "hubAgentSubnetNameTidy": "[toLower(trim(parameters('hubAgentSubnetName')))]",
+    "hubNSG_id": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('hubNSGNameTidy'))]"
+  },
+  "parameters": {
+    "deploymentId": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "location": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "hubVNetName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-Hub-VNet')]"
+    },
+    "hubGatewaySubnetName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "GatewaySubnet"
+    },
+    "hubBastionSubnetName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "AzureBastionSubnet"
+    },
+    "hubAgentSubnetName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-Agent-Subnet')]"
+    },
+    "hubFirewallSubnetName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "AzureFirewallSubnet"
+    },
+    "hubNSG_name":  {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-Hub-NSG')]"
+    },
+    "hubVNetAddressPrefix": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "10.1.0.0/24"
+    },
+    "hubGatewaySubnetAddressPrefix": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "10.1.0.0/26"
+    },
+    "hubBastionSubnetAddressPrefix": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "10.1.0.64/26"
+    },
+    "hubAgentSubnetAddressPrefix": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "10.1.0.128/26"
+    },
+    "hubFirewallSubnetAddressPrefix": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "10.1.0.192/26"
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "[variables('apiVersion').nsg]",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('hubNSGNameTidy')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "securityRules": [
+          {
+              "name": "bastion-in-allow",
+              "properties": {
+                  "protocol": "Tcp",
+                  "sourcePortRange": "*",
+                  "sourceAddressPrefix": "Internet",
+                  "destinationPortRange": "443",
+                  "destinationAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 100,
+                  "direction": "Inbound"
+              }
+          },
+          {
+              "name": "bastion-control-in-allow",
+              "properties": {
+                  "protocol": "Tcp",
+                  "sourcePortRange": "*",
+                  "sourceAddressPrefix": "GatewayManager",
+                  "destinationPortRange": "443",
+                  "destinationAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 120,
+                  "direction": "Inbound"
+              }
+          },
+          {
+              "name": "bastion-in-host",
+              "properties": {
+                  "protocol": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRanges": [
+                      "8080",
+                      "5701"
+                  ],
+                  "sourceAddressPrefix": "VirtualNetwork",
+                  "destinationAddressPrefix": "VirtualNetwork",
+                  "access": "Allow",
+                  "priority": 130,
+                  "direction": "Inbound"
+              }
+          },
+          {
+              "name": "bastion-vnet-out-allow",
+              "properties": {
+                  "protocol": "Tcp",
+                  "sourcePortRange": "*",
+                  "sourceAddressPrefix": "*",
+                  "destinationPortRanges": [
+                      "22",
+                      "3389"
+                  ],
+                  "destinationAddressPrefix": "VirtualNetwork",
+                  "access": "Allow",
+                  "priority": 100,
+                  "direction": "Outbound"
+              }
+          },
+          {
+              "name": "bastion-azure-out-allow",
+              "properties": {
+                  "protocol": "Tcp",
+                  "sourcePortRange": "*",
+                  "sourceAddressPrefix": "*",
+                  "destinationPortRange": "443",
+                  "destinationAddressPrefix": "AzureCloud",
+                  "access": "Allow",
+                  "priority": 120,
+                  "direction": "Outbound"
+              }
+          },
+          {
+              "name": "bastion-out-host",
+              "properties": {
+                  "protocol": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRanges": [
+                      "8080",
+                      "5701"
+                  ],
+                  "sourceAddressPrefix": "VirtualNetwork",
+                  "destinationAddressPrefix": "VirtualNetwork",
+                  "access": "Allow",
+                  "priority": 130,
+                  "direction": "Outbound"
+              }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "[variables('apiVersion').vnet]",
+      "name": "[variables('hubVNetNameTidy')]",
+      "comments": "HUB Virtual Network (VNet)",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[variables('hubNSG_id')]"
+      ],
+      "properties": {
+          "addressSpace": {
+              "addressPrefixes": [
+                  "[parameters('hubVNetAddressPrefix')]"
+              ]
+          },
+          "enableDdosProtection": false,
+          "enableVmProtection": false,
+          "dhcpOptions": {
+              "dnsServers": []
+          },
+          "subnets": [
+              {
+                  "name": "[parameters('hubGatewaySubnetName')]",
+                  "properties": {
+                      "addressPrefix": "[parameters('hubGatewaySubnetAddressPrefix')]",
+                      "delegations": [],
+                      "privateEndpointNetworkPolicies": "Enabled",
+                      "privateLinkServiceNetworkPolicies": "Enabled"
+                  }
+              },
+              {
+                  "name": "[parameters('hubBastionSubnetName')]",
+                  "properties": {
+                      "addressPrefix": "[parameters('hubBastionSubnetAddressPrefix')]",
+                      "delegations": [],
+                      "privateEndpointNetworkPolicies": "Enabled",
+                      "privateLinkServiceNetworkPolicies": "Enabled",
+                      "networkSecurityGroup": {
+                          "id": "[variables('hubNSG_id')]"
+                      }
+                  }
+              },
+              {
+                  "name": "[variables('hubAgentSubnetNameTidy')]",
+                  "properties": {
+                      "addressPrefix": "[parameters('hubAgentSubnetAddressPrefix')]",
+                      "delegations": [],
+                      "privateEndpointNetworkPolicies": "Disabled",
+                      "privateLinkServiceNetworkPolicies": "Enabled",
+                      "networkSecurityGroup": {
+                          "id": "[variables('hubNSG_id')]"
+                      }
+                  }
+              },
+              {
+                  "name": "[parameters('hubFirewallSubnetName')]",
+                  "properties": {
+                      "addressPrefix": "[parameters('hubFirewallSubnetAddressPrefix')]",
+                      "delegations": [],
+                      "privateEndpointNetworkPolicies": "Enabled",
+                      "privateLinkServiceNetworkPolicies": "Enabled"
+                  }
+              }
+
+          ],
+          "virtualNetworkPeerings": []
+      }
+    }
+  ]
+}

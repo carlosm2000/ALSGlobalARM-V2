@@ -1,0 +1,119 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "firewallApiVersion": "2020-05-01",
+    "firewallPublicIPNameTidy": "[toLower(trim(parameters('firewallPublicIPName')))]",
+    "firewallNameTidy": "[toLower(trim(parameters('firewallName')))]",
+    "hubVNetNameTidy": "[toLower(trim(parameters('hubVNetName')))]",
+    "firewallRouteNameTidy": "[toLower(trim(parameters('firewallRouteName')))]",
+    "firewallPublicIP_id": "[resourceId('Microsoft.Network/publicIpAddresses',variables('firewallPublicIPNameTidy'))]",
+    "hubFirewallSubnet_id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('hubVNetNameTidy'),parameters('hubFirewallSubnetName'))]",
+    "hubFirewall_id": "[resourceId('Microsoft.Network/azureFirewalls', variables('firewallNameTidy'))]"
+  },
+  "parameters": {
+    "deploymentId": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "location": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "firewallPublicIPName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-hub-firewall-PublicIP')]"
+    },
+    "hubVNetName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-Hub-VNet')]"
+    },
+    "firewallName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-hub-firewall')]"
+    },
+    "firewallRouteName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-route-to-fw')]"
+    },
+    "hubFirewallSubnetName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "AzureFirewallSubnet"
+    }
+  },
+  "resources": [
+    {
+        "comments": "Public IP address for Azure Firewall",
+        "apiVersion": "[variables('firewallApiVersion')]",
+        "type": "Microsoft.Network/publicIPAddresses",
+        "name": "[variables('firewallPublicIPNameTidy')]",
+        "location": "[parameters('location')]",
+        "sku": {
+            "name": "Standard"
+        },
+        "properties": {
+            "publicIPAllocationMethod": "Static"
+        }
+    },
+    {
+        "comments": "Azure Firewall",
+        "type": "Microsoft.Network/azureFirewalls",
+        "apiVersion": "[variables('firewallApiVersion')]",
+        "name": "[variables('firewallNameTidy')]",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+            "[variables('firewallPublicIP_id')]"
+        ],
+        "properties": {
+            "sku": {
+                "name": "AZFW_VNet",
+                "tier": "Standard"
+            },
+            "threatIntelMode": "Alert",
+            "additionalProperties": {},
+            "ipConfigurations": [
+                {
+                    "name": "[variables('firewallNameTidy')]",
+                    "properties": {
+                        "publicIPAddress": {
+                            "id": "[variables('firewallPublicIP_id')]"
+                        },
+                        "subnet": {
+                            "id": "[variables('hubFirewallSubnet_id')]"
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    {
+        "comments": "Route / force tunnel from spokes to Azure firewall",
+        "type": "Microsoft.Network/routeTables",
+        "apiVersion": "[variables('firewallApiVersion')]",
+        "name": "[variables('firewallRouteNameTidy')]",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+            "[variables('hubFirewall_id')]"
+        ],
+        "properties": {
+            "disableBgpRoutePropagation": false,
+            "routes": [
+                {
+                    "name": "[variables('firewallRouteNameTidy')]",
+                    "properties": {
+                        "addressPrefix": "0.0.0.0/0",
+                        "nextHopType": "VirtualAppliance",
+                        "nextHopIpAddress": "[reference(variables('hubFirewall_id'), variables('firewallApiVersion')).ipConfigurations[0].properties.privateIpAddress]"
+                    }
+                }
+            ]
+        }
+    }
+  ]
+}

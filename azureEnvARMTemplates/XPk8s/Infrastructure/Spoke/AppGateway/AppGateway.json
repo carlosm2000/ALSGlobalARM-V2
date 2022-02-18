@@ -1,0 +1,254 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "apiVersion": {
+      "publicIp": "2020-05-01",
+      "appGateway": "2020-05-01",
+      "waf": "2020-06-01"
+    },
+    "appGwPublicIPNameTidy": "[toLower(trim(parameters('appGwPublicIPName')))]",
+    "appGwNameTidy": "[toLower(trim(parameters('appGwName')))]",
+    "wafPolicyNameTidy" : "[toLower(trim(parameters('wafPolicyName')))]",
+    "spokeVNetNameTidy": "[toLower(trim(parameters('spokeVNetName')))]",
+    "spokeAppGSubnetNameTidy":  "[toLower(trim(parameters('spokeAppGSubnetName')))]",
+    "appGwPublicIP_id": "[resourceId('Microsoft.Network/publicIpAddresses',variables('appGwPublicIPNameTidy'))]",
+    "appGw_id": "[resourceId('Microsoft.Network/applicationGateways', variables('appGwNameTidy'))]",
+    "spokeAppGwSubnet_id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('spokeVNetNameTidy'),variables('spokeAppGSubnetNameTidy'))]",
+    "wafPolicy_id": "[resourceId('Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies', variables('wafPolicyNameTidy'))]",
+    "managedIdentity_id": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities/',parameters('clusterManagedIdentityName'))]",
+    "webApplicationFirewallConfiguration": {
+      "enabled": true,
+      "firewallMode": "Detection",
+      "ruleSetType": "OWASP",
+      "ruleSetVersion": "3.1"
+    }
+  },
+  "parameters": {
+    "deploymentId": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "location": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "clusterManagedIdentityName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "spokeVNetName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-Spoke-VNet')]"
+    },
+    "spokeAppGSubnetName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-AppGateway-Subnet')]"
+    },
+    "appGwPublicIPName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-spoke-appGw-PublicIP')]"
+    },
+    "appGwName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-spoke-app-Gateway')]"
+    },
+    "wafPolicyName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-spoke-appGw-waf')]"
+    },
+    "applicationGatewayZones": {
+      "type": "array",
+      "defaultValue": [
+        "1",
+        "2",
+        "3"
+      ],
+      "metadata": {
+        "description": "Specifies the availability zones of the Application Gateway."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('appGwPublicIPNameTidy')]",
+      "apiVersion": "[variables('apiVersion').publicIp]",
+      "location": "[parameters('location')]",
+      "sku": {
+          "name": "Standard"
+      },
+      "properties": {
+          "publicIPAllocationMethod": "Static"
+      }
+    },
+    {
+      "type": "Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies",
+      "apiVersion": "[variables('apiVersion').waf]",
+      "name": "[variables('wafPolicyNameTidy')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "customRules": [],
+        "policySettings": {
+          "mode": "Detection",
+          "state": "Enabled"
+        },
+        "managedRules": {
+          "managedRuleSets": [
+            {
+              "ruleSetType": "OWASP",
+              "ruleSetVersion": "3.1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/applicationGateways",
+      "name": "[variables('appGwNameTidy')]",
+      "apiVersion": "[variables('apiVersion').appGateway]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+          "[variables('appGwPublicIP_id')]",
+          "[variables('wafPolicy_id')]"
+      ],
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[variables('managedIdentity_id')]": {}
+        }
+      },
+      "zones": "[parameters('applicationGatewayZones')]",
+      "properties": {
+        "sku": {
+            "name": "WAF_v2",
+            "tier": "WAF_v2",
+            "capacity": 2
+        },
+        "gatewayIPConfigurations": [
+            {
+                "name": "appGatewayIpConfig",
+                "properties": {
+                    "subnet": {
+                        "id": "[variables('spokeAppGwSubnet_id')]"
+                    }
+                }
+            }
+        ],
+        "frontendIPConfigurations": [
+            {
+                "name": "appGatewayFrontendIP",
+                "properties": {
+                    "PublicIPAddress": {
+                        "id": "[variables('appGwPublicIP_id')]"
+                    }
+                }
+            }
+        ],
+        "frontendPorts": [
+            {
+                "name": "httpPort",
+                "properties": {
+                    "Port": 80
+                }
+            },
+            {
+                "name": "httpsPort",
+                "properties": {
+                    "Port": 443
+                }
+            }
+        ],
+        "probes": [
+          {
+            "name": "defaultHttpProbe",
+            "properties": {
+              "protocol": "Http",
+              "path": "/",
+              "interval": 30,
+              "timeout": 30,
+              "unhealthyThreshold": 3,
+              "pickHostNameFromBackendHttpSettings": true,
+              "minServers": 0,
+              "match": {
+              }
+            }
+          },
+          {
+            "name": "defaultHttpsProbe",
+            "properties": {
+              "protocol": "Https",
+              "path": "/",
+              "interval": 30,
+              "timeout": 30,
+              "unhealthyThreshold": 3,
+              "pickHostNameFromBackendHttpSettings": true,
+              "minServers": 0,
+              "match": {
+              }
+            }
+          }
+        ],
+        "backendAddressPools": [
+            {
+                "name": "bepool",
+                "properties": {
+                    "backendAddresses": []
+                }
+            }
+        ],
+        "httpListeners": [
+            {
+                "name": "httpListener",
+                "properties": {
+                    "protocol": "Http",
+                    "frontendPort": {
+                        "id": "[concat(variables('appGw_id'), '/frontendPorts/httpPort')]"
+                    },
+                    "frontendIPConfiguration": {
+                        "id": "[concat(variables('appGw_id'), '/frontendIPConfigurations/appGatewayFrontendIP')]"
+                    }
+                }
+            }
+        ],
+        "backendHttpSettingsCollection": [
+            {
+                "name": "setting",
+                "properties": {
+                    "port": 80,
+                    "protocol": "Http",
+                    "CookieBasedAffinity": "Disabled"
+                }
+            }
+        ],
+        "requestRoutingRules": [
+            {
+                "name": "basicRule",
+                "properties": {
+                    "RuleType": "Basic",
+                    "httpListener": {
+                        "id": "[concat(variables('appGw_id'), '/httpListeners/httpListener')]"
+                    },
+                    "backendAddressPool": {
+                        "id": "[concat(variables('appGw_id'), '/backendAddressPools/bepool')]"
+                    },
+                    "backendHttpSettings": {
+                        "id": "[concat(variables('appGw_id'), '/backendHttpSettingsCollection/setting')]"
+                    }
+                }
+            }
+        ],
+        "webApplicationFirewallConfiguration": "[variables('webApplicationFirewallConfiguration')]",
+        "firewallPolicy": {
+          "id": "[variables('wafPolicy_id')]"
+        }
+      }
+    }
+  ]
+}

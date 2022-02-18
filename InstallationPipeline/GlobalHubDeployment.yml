@@ -1,0 +1,301 @@
+# Pipeline to validate and deploy ARM templates
+trigger: 
+ - none
+
+variables:
+  - group: ${{ parameters.libraryName }}
+  - name: "artifactName"
+    value: 'GlobalHubInstallation'
+
+parameters:
+  - name       : libraryName
+    displayName: 'Library that is used for environment deployment'
+    type       : string
+    default    : 'NWN.WebFrontEnd - Sandbox - Environment Installation'
+  - name: sqlObjects
+    type: object
+    default: 
+    - dbName: 'core'
+      dacpacName: 'Sitecore.Core.dacpac'
+      username: '$(coreUser)'
+      password: '$(corePassword)'
+      secUsername: '$(securityUser)'
+      secPassword: '$(securityPassword)'
+    - dbName: 'master'
+      dacpacName: 'Sitecore.Master.dacpac'
+      username: '$(masterUser)'
+      password: '$(masterPassword)'
+      secUsername: ''
+      secPassword: ''
+    - dbName: 'web'
+      dacpacName: 'Sitecore.Web.dacpac'
+      username: '$(webUser)'
+      password: '$(webPassword)'
+      secUsername: ''
+      secPassword: ''
+    - dbName: 'pools'
+      dacpacName: 'Sitecore.Processing.pools.dacpac'
+      username: '$(poolsUser)'
+      password: '$(poolsPassword)'
+      secUsername: ''
+      secPassword: ''
+    - dbName: 'tasks'
+      dacpacName: 'Sitecore.Processing.tasks.dacpac'
+      username: '$(tasksUser)'
+      password: '$(tasksPassword)'
+      secUsername: ''
+      secPassword: ''
+    - dbName: 'forms'
+      dacpacName: 'Sitecore.Experienceforms.dacpac'
+      username: '$(formsUser)'
+      password: '$(formsPassword)'
+      secUsername: ''
+      secPassword: ''
+    - dbName: 'exmmaster'
+      dacpacName: 'Sitecore.Exm.master.dacpac'
+      username: '$(exmmasterUser)'
+      password: '$(exmmasterPassword)'
+      secUsername: ''
+      secPassword: ''
+    - dbName: 'smm'
+      dacpacName: 'Sitecore.Xdb.Collection.Database.Sql.dacpac'
+      username: '$(smmUser)'
+      password: '$(smmPassword)'
+      secUsername: ''
+      secPassword: ''
+    - dbName: 'shard0'
+      dacpacName: 'Sitecore.Xdb.Collection.Shard0.dacpac'
+      username: '$(smmUser)'
+      password: '$(smmPassword)'
+      secUsername: ''
+      secPassword: ''
+    - dbName: 'shard1'
+      dacpacName: 'Sitecore.Xdb.Collection.Shard1.dacpac'
+      username: '$(smmUser)'
+      password: '$(smmPassword)'
+      secUsername: ''
+      secPassword: ''
+    - dbName: 'refdata'
+      dacpacName: 'Sitecore.Referencedata.dacpac'
+      username: '$(refdataUser)'
+      password: '$(refdataPassword)'
+      secUsername: ''
+      secPassword: ''
+    - dbName: 'ma'
+      dacpacName: 'Sitecore.MarketingAutomationAzure.dacpac'
+      username: '$(maUser)'
+      password: '$(maPassword)'
+      secUsername: ''
+      secPassword: ''
+    - dbName: 'processingenginetasks'
+      dacpacName: 'Sitecore.Processing.Engine.Tasks.dacpac'
+      username: '$(processingengineUser)'
+      password: '$(processingenginePassword)'
+      secUsername: ''
+      secPassword: ''
+    - dbName: 'processingenginestorage'
+      dacpacName: 'Sitecore.Processing.Engine.Storage.dacpac'
+      username: '$(processingengineUser)'
+      password: '$(processingenginePassword)'
+      secUsername: ''
+      secPassword: ''
+    - dbName: 'reporting'
+      dacpacName: 'Sitecore.Reporting.dacpac'
+      username: '$(reportingUser)'
+      password: '$(reportingPassword)'
+      secUsername: ''
+      secPassword: ''
+    - dbName: 'messaging'
+      dacpacName: 'Sitecore.Messaging.dacpac'
+      username: '$(messagingUser)'
+      password: '$(messagingPassword)'
+      secUsername: ''
+      secPassword: ''
+  - name: shardDBs
+    type: object
+    default: 
+    - smm
+    - shard0
+    - shard1
+
+stages:
+    
+- stage: DeployToGlobalEnvironment
+  displayName: Deploy Hub to global resource group
+
+  jobs:
+    - job: DeploymentJob
+      displayName: Deploy ARM templates
+      pool:
+        vmImage: 'windows-latest'
+
+      steps:
+        - task: AzureFileCopy@3
+          displayName: Copy deployment artifacts to the storage account
+          inputs:
+            sourcePath: '$(Build.SourcesDirectory)\azureEnvARMTemplates\XPk8s'
+            azureSubscription: '$(storageServiceConnectionName)'
+            destination: azureBlob
+            storage: '$(deploymentStorageAccountName)'
+            containerName: '$(storageContainerName)'
+            outputStorageUri: artifactsLocation
+            outputStorageContainerSasToken: artifactsLocationSasToken
+            sasTokenTimeOutInMinutes: 90
+
+        - task: AzureResourceManagerTemplateDeployment@3
+          displayName: Deploy main resources
+          inputs:
+            deploymentScope: 'Resource Group'
+            ConnectedServiceName: '$(serviceConnectionName)'
+            subscriptionName: '$(subscriptionId)'
+            action: 'Create Or Update Resource Group'
+            resourceGroupName: '$(resourceGroupName)'
+            location: '$(deploymentLocation)'
+            templateLocation: 'URL of the file'
+            csmFileLink: '$(artifactsLocation)azuredeploy.json$(artifactsLocationSasToken)'
+            csmParametersFileLink: '$(artifactsLocation)azuredeploy.parameters.json$(artifactsLocationSasToken)'
+            overrideParameters: '-templateLinkBase $(artifactsLocation) -templateLinkAccessToken $(artifactsLocationSasToken) -additionalFilesLink $(artifactsLocation)/AdditionalFiles'
+            deploymentMode: 'Incremental'
+            deploymentOutputs: 'armOutputs'
+
+        - task: AzureResourceManagerTemplateDeployment@3
+          displayName: Deploy main resources
+          inputs:
+            deploymentScope: 'Resource Group'
+            ConnectedServiceName: '$(serviceConnectionName)'
+            subscriptionName: '$(subscriptionId)'
+            action: 'Create Or Update Resource Group'
+            resourceGroupName: '$(resourceGroupName)'
+            location: '$(deploymentLocation)'
+            templateLocation: 'URL of the file'
+            csmFileLink: '$(artifactsLocation)azuredeployk8s.json$(artifactsLocationSasToken)'
+            csmParametersFileLink: '$(artifactsLocation)azuredeployk8s.parameters.json$(artifactsLocationSasToken)'
+            overrideParameters: '-templateLinkBase $(artifactsLocation) -templateLinkAccessToken $(artifactsLocationSasToken) -additionalFilesLink $(artifactsLocation)/AdditionalFiles'
+            deploymentMode: 'Incremental'
+            deploymentOutputs: 'armOutputs'
+
+        - task: AzureCLI@2
+          displayName: Remove Artifacts from Storage Account
+          condition: always()
+          inputs:
+            azureSubscription: $(storageServiceConnectionName)
+            scriptType: ps
+            scriptLocation: inlineScript
+            inlineScript: az storage blob delete-batch --account-name $(deploymentStorageAccountName) --source $(storageContainerName)
+            
+
+- stage: SqlDeployment
+  displayName: SqlDeployment
+
+  jobs:
+    - job: DacpacJob
+      displayName: Deploy Dacpacs and script files
+      pool:
+        vmImage: 'windows-latest'
+
+      steps:
+        - ${{ each so in parameters.sqlObjects }}:
+          - task: SqlAzureDacpacDeployment@1
+            displayName: '${{ so.dacpacName }} Task'
+            inputs:
+              azureSubscription: '$(serviceConnectionName)'
+              ServerName: '$(deploymentId)-sql.database.windows.net'
+              DatabaseName: '$(deploymentId)-${{ so.dbName }}-db'
+              SqlUsername: '$(sqlServerLogin)'
+              SqlPassword: '$(sqlServerPassword)'
+              DacpacFile: '$(Build.SourcesDirectory)\InstallationPipeline\SqlInitialFiles\DacpacFiles\${{ so.dacpacName }}'
+              AdditionalArguments: '/p:AllowIncompatiblePlatform=true'
+
+    - job: DeploymentJob
+      displayName: SqlScriptsJob
+      dependsOn: DacpacJob
+      pool:
+        vmImage: 'windows-latest'
+
+      steps:
+        - task: AzurePowerShell@5
+          displayName: AddFirewallRule
+          inputs:
+            azureSubscription: '$(serviceConnectionName)'
+            scriptType: FilePath
+            ScriptPath: '$(Build.SourcesDirectory)\InstallationPipeline\SqlInitialFiles\SqlScripts\SetAzureFirewallRule.ps1'
+            scriptArguments: 
+                -ServerName $(deploymentId)-sql `
+                -ResourceGroup $(resourceGroupName)
+            failOnStandardError: true
+            azurePowerShellVersion: LatestVersion
+
+        - ${{ each so in parameters.sqlObjects }}:
+          - task: AzurePowerShell@5
+            displayName: ReplacingVariablesOnScripts
+            inputs:
+              azureSubscription: '$(serviceConnectionName)'
+              scriptType: FilePath
+              scriptPath: '$(Build.SourcesDirectory)\InstallationPipeline\SqlInitialFiles\SqlScripts\ReplaceUserVariables.ps1'
+              scriptArguments: 
+                -FilePath "$(Build.SourcesDirectory)\InstallationPipeline\SqlInitialFiles\SqlScripts\${{ so.dbName }}_script.sql" `
+                -Username "${{ so.username }}" `
+                -Password "${{ so.password }}" `
+                -SecUsername "${{ so.secUsername }}" `
+                -SecPassword "${{ so.secPassword }}"
+              failOnStandardError: true
+              azurePowerShellVersion: LatestVersion
+
+          - task: CmdLine@1
+            displayName: Run Sqlcmd
+            inputs:
+              filename: Sqlcmd
+              arguments: '-S $(deploymentId)-sql.database.windows.net -U $(sqlServerLogin) -P $(sqlServerPassword) -d $(deploymentId)-${{ so.dbName }}-db -i $(Build.SourcesDirectory)\InstallationPipeline\SqlInitialFiles\SqlScripts\${{ so.dbName }}_script.sql'
+
+
+        - task: AzurePowerShell@5
+          displayName: ReplacingVariablesOnSetSitecoreAdminPassword
+          inputs:
+            azureSubscription: '$(serviceConnectionName)'
+            scriptType: FilePath
+            scriptPath: '$(Build.SourcesDirectory)\InstallationPipeline\SqlInitialFiles\SqlScripts\SetSitecoreAdminPassword.ps1'
+            scriptArguments: 
+              -FilePath "$(Build.SourcesDirectory)\InstallationPipeline\SqlInitialFiles\SqlScripts\SetSitecoreAdminPassword.sql" `
+              -ScAdminPassword "$(sitecoreAdminPassword)"
+            failOnStandardError: true
+            azurePowerShellVersion: LatestVersion
+
+        - task: CmdLine@1
+          displayName: Run Sqlcmd
+          inputs:
+            filename: Sqlcmd
+            arguments: '-S $(deploymentId)-sql.database.windows.net -U $(sqlServerLogin) -P $(sqlServerPassword) -d $(deploymentId)-core-db -i $(Build.SourcesDirectory)\InstallationPipeline\SqlInitialFiles\SqlScripts\SetSitecoreAdminPassword.sql'
+
+        - ${{ each sdb in parameters.shardDBs }}:
+          - task: AzurePowerShell@5
+            displayName: ReplacingVariablesOnShardsScripts
+            inputs:
+              azureSubscription: '$(serviceConnectionName)'
+              scriptType: FilePath
+              scriptPath: '$(Build.SourcesDirectory)\InstallationPipeline\SqlInitialFiles\SqlScripts\ReplaceShardVariables.ps1'
+              scriptArguments: 
+                -FilePath "$(Build.SourcesDirectory)\InstallationPipeline\SqlInitialFiles\SqlScripts\${{ sdb }}_azure.sql" `
+                -ServerName "$(deploymentId)-sql" `
+                -Shard0Name "$(deploymentId)-shard0-db" `
+                -Shard1Name "$(deploymentId)-shard1-db"
+              failOnStandardError: true
+              azurePowerShellVersion: LatestVersion
+
+          - task: CmdLine@1
+            displayName: Run Sqlcmd
+            inputs:
+              filename: Sqlcmd
+              arguments: '-S $(deploymentId)-sql.database.windows.net -U $(sqlServerLogin) -P $(sqlServerPassword) -d $(deploymentId)-${{ sdb }}-db -i $(Build.SourcesDirectory)\InstallationPipeline\SqlInitialFiles\SqlScripts\${{ sdb }}_azure.sql'
+
+        - task: AzurePowerShell@5
+          displayName: RemoveFirewallRule
+          inputs:
+            azureSubscription: '$(serviceConnectionName)'
+            scriptType: FilePath
+            ScriptPath: '$(Build.SourcesDirectory)\InstallationPipeline\SqlInitialFiles\SqlScripts\RemoveAzureFirewallRule.ps1'
+            scriptArguments: 
+                -ServerName $(deploymentId)-sql `
+                -ResourceGroup $(resourceGroupName)
+            failOnStandardError: true
+            azurePowerShellVersion: LatestVersion
+            

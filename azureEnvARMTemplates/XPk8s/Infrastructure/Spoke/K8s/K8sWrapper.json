@@ -1,0 +1,168 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "resourcesApiVersion": "2018-05-01"
+  },
+  "parameters": {
+    "deploymentId": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "templateLinkBase": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[uri(replace(json(string(deployment().properties.templateLink)).uri,' ','%20'), '.')]"
+    },
+    "templateLinkAccessToken": {
+      "type": "securestring",
+      "defaultValue": ""
+    },
+    "location": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "sitecoreSKU": {
+      "type": "string",
+      "allowedValues": [ "Extra Small", "Small", "Medium", "Large", "Extra Large", "2x Large", "3x Large" ],
+      "defaultValue": "Small",
+      "metadata": {
+        "description": "Sitecore SKU controls the sizes and service levels of the provisioned resources"
+      }
+    },
+    "dnsPrefix": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-aks')]"
+    },
+    "kubernetesVersion": {
+      "type": "string",
+      "defaultValue":"1.21.7",
+      "metadata": {
+        "description": "Kubernetes version"
+      }
+    },
+    "dockerBridgeCidr": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "172.17.0.1/16"
+    },
+    "clusterServiceCidr": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "10.0.0.0/21"
+    },
+    "clusterDnsServiceIp": {
+      "type": "string",
+      "minLength": 7,
+      "maxLength": 15,
+      "defaultValue": "10.0.0.10"
+    },
+    "clusterManagedIdentityName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "clusterWindowsUsername": {
+      "type": "string",
+      "minLength": 1
+    },
+    "clusterWindowsPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Specifies the password for k8s windows nodes."
+      }
+    },
+    "clusterLinuxUsername": {
+      "type": "string",
+      "minLength": 1
+    },
+    "clusterLinuxSSHKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Specifies the SSH Key for k8s linux nodes."
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "[variables('resourcesApiVersion')]",
+      "name": "[concat(parameters('deploymentId'), '-container-insights')]",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(uri(parameters('templateLinkBase'), 'ContainerInsights.json'), parameters('templateLinkAccessToken'))]"
+        },
+        "parameters": {
+          "deploymentId": {
+            "value": "[parameters('deploymentId')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "sitecoreSKU": {
+            "value": "[parameters('sitecoreSKU')]"
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "[variables('resourcesApiVersion')]",
+      "name": "[concat(parameters('deploymentId'), '-k8s-cluster')]",
+      "type": "Microsoft.Resources/deployments",
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments',concat(parameters('deploymentId'), '-container-insights'))]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(uri(parameters('templateLinkBase'), 'k8sCluster.json'), parameters('templateLinkAccessToken'))]"
+        },
+        "parameters": {
+          "deploymentId": {
+            "value": "[parameters('deploymentId')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "sitecoreSKU": {
+            "value": "[parameters('sitecoreSKU')]"
+          },
+          "dnsPrefix": {
+            "value": "[parameters('dnsPrefix')]"
+          },
+          "kubernetesVersion": {
+            "value": "[parameters('kubernetesVersion')]"
+          },
+          "dockerBridgeCidr": {
+            "value": "[parameters('dockerBridgeCidr')]"
+          },
+          "clusterServiceCidr": {
+            "value": "[parameters('clusterServiceCidr')]"
+          },
+          "clusterDnsServiceIp": {
+            "value": "[parameters('clusterDnsServiceIp')]"
+          },
+          "clusterManagedIdentityName": {
+            "value": "[parameters('clusterManagedIdentityName')]"
+          },
+          "windowsUsername": {
+            "value": "[parameters('clusterWindowsUsername')]"
+          },
+          "windowsPassword": {
+            "value": "[parameters('clusterWindowsPassword')]"
+          },
+          "linuxUsername": {
+            "value": "[parameters('clusterLinuxUsername')]"
+          },
+          "linuxSSHKey": {
+            "value": "[parameters('clusterLinuxSSHKey')]"
+          }
+        }
+      }
+    }
+  ]
+}

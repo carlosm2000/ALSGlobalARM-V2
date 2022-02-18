@@ -1,0 +1,9 @@
+steps:
+- task: AzureCLI@2
+  displayName: Remove Artifacts from Storage Account
+  condition: always()
+  inputs:
+    azureSubscription: $(storageServiceConnectionName)
+    scriptType: ps
+    scriptLocation: inlineScript
+    inlineScript: az storage blob delete-batch --account-name $(deploymentStorageAccountName) --source $(storageContainerName)

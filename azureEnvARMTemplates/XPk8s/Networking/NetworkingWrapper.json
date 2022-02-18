@@ -1,0 +1,186 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "resourcesApiVersion": "2018-05-01"
+  },
+  "parameters": {
+    "deploymentId": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "templateLinkBase": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[uri(replace(json(string(deployment().properties.templateLink)).uri,' ','%20'), '.')]"
+    },
+    "templateLinkAccessToken": {
+      "type": "securestring",
+      "defaultValue": ""
+    },
+    "location": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "hubDeploymentId": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "deployHub":{
+      "type": "bool",
+      "defaultValue": "[bool('true')]"
+    },
+    "deploySpoke":{
+      "type": "bool",
+      "defaultValue": "[bool('true')]"
+    },
+    "hubVNetAddressPrefix": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "10.1.0.0/24"
+    },
+    "hubGatewaySubnetAddressPrefix": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "10.1.0.0/26"
+    },
+    "hubBastionSubnetAddressPrefix": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "10.1.0.64/26"
+    },
+    "hubAgentSubnetAddressPrefix":{
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "10.1.0.128/26"
+    },
+    "hubFirewallSubnetAddressPrefix": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "10.1.0.192/26"
+    },
+    "spokeVNetAddressPrefix": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "10.0.0.0/20"
+    },
+    "spokeAppGatewaySubnetAddressPrefix": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "10.0.15.192/26"
+    },
+    "spokePrivateSubnetAddressPrefix": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "10.0.15.128/26"
+    },
+    "spokeClusterSubnetAddressPrefix": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "10.0.8.0/22"
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "[variables('resourcesApiVersion')]",
+      "name": "[concat(parameters('deploymentId'), '-Hub-VNet')]",
+      "type": "Microsoft.Resources/deployments",
+      "condition" : "[parameters('deployHub')]",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(uri(parameters('templateLinkBase'), 'VNets/HubVNet.json'), parameters('templateLinkAccessToken'))]"
+        },
+        "parameters": {
+          "deploymentId": {
+            "value": "[parameters('hubDeploymentId')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "hubVNetAddressPrefix": {
+            "value": "[parameters('hubVNetAddressPrefix')]"
+          },
+          "hubGatewaySubnetAddressPrefix": {
+            "value": "[parameters('hubGatewaySubnetAddressPrefix')]"
+          },
+          "hubBastionSubnetAddressPrefix": {
+            "value": "[parameters('hubBastionSubnetAddressPrefix')]"
+          },
+          "hubAgentSubnetAddressPrefix": {
+            "value": "[parameters('hubAgentSubnetAddressPrefix')]"
+          },
+          "hubFirewallSubnetAddressPrefix": {
+            "value": "[parameters('hubFirewallSubnetAddressPrefix')]"
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "[variables('resourcesApiVersion')]",
+      "name": "[concat(parameters('deploymentId'), '-Spoke-VNet')]",
+      "type": "Microsoft.Resources/deployments",
+      "condition" : "[parameters('deploySpoke')]",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(uri(parameters('templateLinkBase'), 'VNets/SpokeVNet.json'), parameters('templateLinkAccessToken'))]"
+        },
+        "parameters": {
+          "deploymentId": {
+            "value": "[parameters('deploymentId')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "spokeVNetAddressPrefix": {
+            "value": "[parameters('spokeVNetAddressPrefix')]"
+          },
+          "spokeAppGatewaySubnetAddressPrefix": {
+            "value": "[parameters('spokeAppGatewaySubnetAddressPrefix')]"
+          },
+          "spokePrivateSubnetAddressPrefix": {
+            "value": "[parameters('spokePrivateSubnetAddressPrefix')]"
+          },
+          "spokeClusterSubnetAddressPrefix": {
+            "value": "[parameters('spokeClusterSubnetAddressPrefix')]"
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "[variables('resourcesApiVersion')]",
+      "name": "[concat(parameters('deploymentId'), '-NetworkPeerings')]",
+      "type": "Microsoft.Resources/deployments",
+      "condition" : "[and(parameters('deployHub'), parameters('deploySpoke'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments',concat(parameters('deploymentId'), '-Hub-VNet'))]",
+        "[resourceId('Microsoft.Resources/deployments',concat(parameters('deploymentId'), '-Spoke-VNet'))]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(uri(parameters('templateLinkBase'), 'VNets/VNetPeering.json'), parameters('templateLinkAccessToken'))]"
+        },
+        "parameters": {
+          "deploymentId": {
+            "value": "[parameters('deploymentId')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          }
+        }
+      }
+    }
+  ]
+}

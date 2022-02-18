@@ -1,0 +1,88 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "gatewayApiVersion": "2019-11-01",
+    "vpnPublicIPNameTidy": "[toLower(trim(parameters('vpnPublicIPName')))]",
+    "vpnNameTidy": "[toLower(trim(parameters('vpnName')))]",
+    "hubVNetNameTidy": "[toLower(trim(parameters('hubVNetName')))]",
+    "vpnPublicIP_id": "[resourceId('Microsoft.Network/publicIpAddresses',variables('vpnPublicIPNameTidy'))]",
+    "hubVpnSubnet_id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('hubVNetNameTidy'),parameters('hubVPNSubnetName'))]"
+  },
+  "parameters": {
+    "deploymentId": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "location": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "hubVNetName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-Hub-VNet')]"
+    },
+    "vpnPublicIPName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-hub-vpn-PublicIP')]"
+    },
+    "vpnName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-hub-vpn-Gateway')]"
+    },
+    "hubVPNSubnetName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "GatewaySubnet"
+    }
+  },
+  "resources": [
+    {
+        "comments": "Public IP address for VPN Gateway",
+        "type": "Microsoft.Network/publicIPAddresses",
+        "apiVersion": "[variables('gatewayApiVersion')]",
+        "name": "[variables('vpnPublicIPNameTidy')]",
+        "location": "[parameters('location')]",
+        "properties": {
+            "publicIPAllocationMethod": "Dynamic"
+        }
+    },
+    {
+      "comments": "VPN Gateway",
+      "type": "Microsoft.Network/virtualNetworkGateways",
+      "apiVersion": "[variables('gatewayApiVersion')]",
+      "name": "[variables('vpnNameTidy')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+          "[variables('vpnPublicIP_id')]"
+      ],
+      "properties": {
+          "ipConfigurations": [
+              {
+                  "properties": {
+                      "privateIPAllocationMethod": "Dynamic",
+                      "subnet": {
+                          "id": "[variables('hubVpnSubnet_id')]"
+                      },
+                      "publicIPAddress": {
+                          "id": "[variables('vpnPublicIP_id')]"
+                      }
+                  },
+                  "name": "vnetGatewayConfig"
+              }
+          ],
+          "sku": {
+              "name": "Basic",
+              "tier": "Basic"
+          },
+          "gatewayType": "Vpn",
+          "vpnType": "RouteBased",
+          "enableBgp": false
+      }
+    }
+  ]
+}

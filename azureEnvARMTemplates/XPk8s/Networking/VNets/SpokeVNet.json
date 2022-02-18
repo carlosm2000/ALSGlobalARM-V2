@@ -1,0 +1,172 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "apiVersion": {
+      "vnet": "2020-11-01",
+      "nsg": "2020-07-01"
+    },
+    "spokeVNetNameTidy": "[toLower(trim(parameters('spokeVNetName')))]",
+    "spokeClusterSubnetNameTidy": "[toLower(trim(parameters('spokeClusterSubnetName')))]",
+    "spokeAppGSubnetNameTidy":  "[toLower(trim(parameters('spokeAppGSubnetName')))]",
+    "spokePrivateSubnetNameTidy":  "[toLower(trim(parameters('spokePrivateSubnetName')))]",
+    "spokeNSGNameTidy": "[toLower(trim(parameters('spokeNSG_name')))]",
+    "spokeNSG_id": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('spokeNSGNameTidy'))]"
+  },
+  "parameters": {
+    "deploymentId": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "location": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "spokeVNetName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-Spoke-VNet')]"
+    },
+    "spokeAppGSubnetName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-AppGateway-Subnet')]"
+    },
+    "spokePrivateSubnetName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-Private-Subnet')]"
+    },
+    "spokeClusterSubnetName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-Cluster-Subnet')]"
+    },
+    "spokeNSG_name":  {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-Spoke-NSG')]"
+    },
+    "spokeVNetAddressPrefix": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "10.0.0.0/20"
+    },
+    "spokeAppGatewaySubnetAddressPrefix": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "10.0.15.192/26"
+    },
+    "spokePrivateSubnetAddressPrefix": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "10.0.15.128/26"
+    },
+    "spokeClusterSubnetAddressPrefix": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 18,
+      "defaultValue": "10.0.8.0/22"
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "[variables('apiVersion').nsg]",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('spokeNSGNameTidy')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "securityRules": [
+          {
+              "name": "bastion-in-vnet",
+              "properties": {
+                  "protocol": "Tcp",
+                  "sourcePortRange": "*",
+                  "sourceAddressPrefix": "10.1.0.64/26",
+                  "destinationPortRanges": [
+                      "22",
+                      "3389"
+                  ],
+                  "destinationAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 100,
+                  "direction": "Inbound"
+              }
+          },
+          {
+              "name": "DenyAllInBound",
+              "properties": {
+                  "protocol": "Tcp",
+                  "sourcePortRange": "*",
+                  "sourceAddressPrefix": "*",
+                  "destinationPortRange": "*",
+                  "destinationAddressPrefix": "*",
+                  "access": "Deny",
+                  "priority": 1000,
+                  "direction": "Inbound"
+              }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "[variables('apiVersion').vnet]",
+      "name": "[variables('spokeVNetNameTidy')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[variables('spokeNSG_id')]"
+      ],
+      "properties": {
+          "addressSpace": {
+              "addressPrefixes": [
+                  "[parameters('spokeVNetAddressPrefix')]"
+              ]
+          },
+          "enableDdosProtection": false,
+          "enableVmProtection": false,
+          "dhcpOptions": {
+              "dnsServers": []
+          },
+          "subnets": [
+              {
+                  "name": "[variables('spokeAppGSubnetNameTidy')]",
+                  "properties": {
+                      "addressPrefix": "[parameters('spokeAppGatewaySubnetAddressPrefix')]",
+                      "delegations": [],
+                      "privateEndpointNetworkPolicies": "Enabled",
+                      "privateLinkServiceNetworkPolicies": "Enabled"
+                  }
+              },
+              {
+                  "name": "[variables('spokePrivateSubnetNameTidy')]",
+                  "properties": {
+                      "addressPrefix": "[parameters('spokePrivateSubnetAddressPrefix')]",
+                      "delegations": [],
+                      "privateEndpointNetworkPolicies": "Disabled",
+                      "privateLinkServiceNetworkPolicies": "Enabled",
+                      "networkSecurityGroup": {
+                          "id": "[variables('spokeNSG_id')]"
+                      }
+                  }
+              },
+              {
+                  "name": "[variables('spokeClusterSubnetNameTidy')]",
+                  "properties": {
+                      "addressPrefix": "[parameters('spokeClusterSubnetAddressPrefix')]",
+                      "delegations": [],
+                      "privateEndpointNetworkPolicies": "Disabled",
+                      "privateLinkServiceNetworkPolicies": "Enabled"
+                  }
+              }
+
+          ],
+          "virtualNetworkPeerings": []
+      }
+    }
+  ]
+}

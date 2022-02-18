@@ -1,0 +1,215 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "apiVersion": {
+      "redis": "2016-04-01",
+      "privateEndpoint": "2020-04-01",
+      "privateDnsZones": "2018-09-01",
+      "privateDnsZoneGroups": "2020-03-01"
+    },
+    "redisCacheNameTidy": "[toLower(trim(parameters('redisCacheName')))]",
+    "redisPrivateEndpointNameTidy":"[toLower(trim(parameters('redisPrivateEndpointName')))]",
+    "spokeVNetNameTidy": "[toLower(trim(parameters('spokeVNetName')))]",
+	  "spokePrivateSubnetNameTidy":  "[toLower(trim(parameters('spokePrivateSubnetName')))]",
+    "redisPrivateDnsZoneName": "privatelink.redis.cache.windows.net",
+    "redis_id": "[resourceId('Microsoft.Cache/Redis', variables('redisCacheNameTidy'))]",
+	  "spokePrivateSubnet_id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('spokeVNetNameTidy'),variables('spokePrivateSubnetNameTidy'))]",
+    "spokeVNet_id": "[resourceId('Microsoft.Network/virtualNetworks', variables('spokeVNetNameTidy'))]",
+    "redisPrivateDnsZone_id": "[resourceId('Microsoft.Network/privateDnsZones', variables('redisPrivateDnsZoneName'))]",
+    "redisPrivateEndpoint_id": "[resourceId('Microsoft.Network/privateEndpoints', variables('redisPrivateEndpointNameTidy'))]",
+
+    "sitecoreTags": {
+      "provider": "b51535c2-ab3e-4a68-95f8-e2e3c9a19299"
+    }
+  },
+  "parameters": {
+    "deploymentId": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "location": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "spokeVNetName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-Spoke-VNet')]"
+    },
+    "spokePrivateSubnetName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-Private-Subnet')]"
+    },
+    "redisPrivateEndpointName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-redis-private-endpoint')]"
+    },
+    "sitecoreSKU": {
+      "type": "string",
+      "allowedValues": [ "Extra Small", "Small", "Medium", "Large", "Extra Large", "2x Large", "3x Large" ],
+      "defaultValue": "Small",
+      "metadata": {
+        "description": "Sitecore SKU controls the sizes and service levels of the provisioned resources"
+      }
+    },
+
+    "redisCacheName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-redis')]"
+    },
+
+    "skuMap": {
+      "type": "secureObject",
+      "defaultValue": {
+        "Extra Small": {
+          "redisCache": {
+            "SkuName": "Standard",
+            "SkuFamily": "C",
+            "SkuCapacity": 1
+          }
+        },
+        "Small": {
+          "redisCache": {
+            "SkuName": "Standard",
+            "SkuFamily": "C",
+            "SkuCapacity": 1
+          }
+        },
+        "Medium": {
+          "redisCache": {
+            "SkuName": "Standard",
+            "SkuFamily": "C",
+            "SkuCapacity": 1
+          }
+        },
+        "Large": {
+          "redisCache": {
+            "SkuName": "Standard",
+            "SkuFamily": "C",
+            "SkuCapacity": 1
+          }
+        },
+        "Extra Large": {
+          "redisCache": {
+            "SkuName": "Standard",
+            "SkuFamily": "C",
+            "SkuCapacity": 1
+          }
+        },
+        "2x Large": {
+          "redisCache": {
+            "SkuName": "Standard",
+            "SkuFamily": "C",
+            "SkuCapacity": 2
+          }
+        },
+        "3x Large": {
+          "redisCache": {
+            "SkuName": "Standard",
+            "SkuFamily": "C",
+            "SkuCapacity": 3
+          }
+        }
+      }
+    },
+    "resourceSizes": {
+      "type": "object",
+      "defaultValue": "[parameters('skuMap')[parameters('sitecoreSKU')]]"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Cache/Redis",
+      "name": "[variables('redisCacheNameTidy')]",
+      "apiVersion": "[variables('apiVersion').redis]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "sku": {
+          "name": "[parameters('resourceSizes').redisCache.SkuName]",
+          "family": "[parameters('resourceSizes').redisCache.SkuFamily]",
+          "capacity": "[parameters('resourceSizes').redisCache.SkuCapacity]"
+        },
+        "enableNonSslPort": false
+      },
+      "tags": {
+        "provider": "[variables('sitecoreTags').provider]"
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateDnsZones",
+      "apiVersion": "[variables('apiVersion').privateDnsZones]",
+      "name": "[variables('redisPrivateDnsZoneName')]",
+      "location": "global",
+      "properties": {
+        "maxNumberOfRecordSets": 25000,
+        "maxNumberOfVirtualNetworkLinks": 1000,
+        "maxNumberOfVirtualNetworkLinksWithRegistration": 100
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+      "apiVersion": "[variables('apiVersion').privateDnsZones]",
+      "name": "[format('{0}/{1}', variables('redisPrivateDnsZoneName'), 'redis_private_link' )]",
+      "location": "global",
+      "dependsOn": [
+        "[variables('redisPrivateDnsZone_id')]"
+      ],
+      "properties": {
+        "registrationEnabled": false,
+        "virtualNetwork": {
+          "id": "[variables('spokeVNet_id')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints",
+      "apiVersion": "[variables('apiVersion').privateEndpoint]",
+      "name": "[variables('redisPrivateEndpointNameTidy')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[variables('redis_id')]"
+      ],
+      "properties": {
+        "privateLinkServiceConnections": [
+          {
+            "name": "[variables('redisPrivateEndpointNameTidy')]",
+            "properties": {
+              "privateLinkServiceId": "[variables('redis_id')]",
+              "groupIds": [
+                "redisCache"
+              ]
+            }
+          }
+        ],
+        "subnet": {
+          "id": "[variables('spokePrivateSubnet_id')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+      "apiVersion": "[variables('apiVersion').privateDnsZoneGroups]",
+      "name": "[concat(variables('redisPrivateEndpointNameTidy'),'/', 'redisCache', 'PrivateDnsZoneGroup')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[variables('redisPrivateDnsZone_id')]",
+        "[variables('redisPrivateEndpoint_id')]"
+      ],
+      "properties": {
+        "privateDnsZoneConfigs": [
+          {
+            "name": "dnsConfig",
+            "properties": {
+              "privateDnsZoneId": "[variables('redisPrivateDnsZone_id')]"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

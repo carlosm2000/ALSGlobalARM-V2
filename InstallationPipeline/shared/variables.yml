@@ -1,0 +1,7 @@
+parameters:
+  - name       : libraryName
+    displayName: 'Library that is used for environment deployment'
+    type       : string
+
+variables:
+  - group: ${{ parameters.libraryName }}

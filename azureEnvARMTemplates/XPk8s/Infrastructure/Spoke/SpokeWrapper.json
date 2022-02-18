@@ -1,0 +1,409 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "resourcesApiVersion": "2018-05-01"
+  },
+  "parameters": {
+    "deploymentId": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "templateLinkBase": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[uri(replace(json(string(deployment().properties.templateLink)).uri,' ','%20'), '.')]"
+    },
+    "templateLinkAccessToken": {
+      "type": "securestring",
+      "defaultValue": ""
+    },
+    "location": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "sitecoreSKU": {
+      "type": "string",
+      "allowedValues": [ "Extra Small", "Small", "Medium", "Large", "Extra Large", "2x Large", "3x Large" ],
+      "defaultValue": "Small",
+      "metadata": {
+        "description": "Sitecore SKU controls the sizes and service levels of the provisioned resources"
+      }
+    },
+    "sqlServerLogin": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sqlServerPassword": {
+      "type": "securestring",
+      "minLength": 8
+    },
+    "ServiceConnectionAppObjectID": {
+      "type": "securestring",
+      "minLength": 8
+    },
+    
+    "clusterManagedIdentityName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sitecoreAdminPassword": {
+      "type": "securestring",
+      "minLength": 8
+    },
+    "smmPassword": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "smmUser": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "corePassword": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "coreUser": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "exmmasterPassword": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "exmmasterUser": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "formsPassword": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "formsUser": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "identitycertificatepassword": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "identitysecret": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "maPassword": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "maUser": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "masterPassword": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "masterUser": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "mediaSharedSecret": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "messagingPassword": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "messagingUser": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "processingenginePassword": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "processingengineUser": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "poolsPassword": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "poolsUser": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "tasksPassword": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "tasksUser": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "refdataPassword": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "refdataUser": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "reportingApiKey": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "reportingPassword": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "reportingUser": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "solrConnectionString": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "solrConnectionStringXDB": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "solrCorePrefix": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "telerikEncryptionKey": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "webPassword": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "webUser": {
+      "type": "securestring",
+      "minLength": 2
+    },
+    "googleApiKey": {
+      "type": "securestring",
+      "minLength": 2
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "[variables('resourcesApiVersion')]",
+      "name": "[concat(parameters('deploymentId'), '-Redis-Cache')]",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(uri(parameters('templateLinkBase'), 'Redis/redisCache.json'), parameters('templateLinkAccessToken'))]"
+        },
+        "parameters": {
+          "deploymentId": {
+            "value": "[parameters('deploymentId')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "sitecoreSKU": {
+            "value": "[parameters('sitecoreSKU')]"
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "[variables('resourcesApiVersion')]",
+      "name": "[concat(parameters('deploymentId'), '-KeyVault')]",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(uri(parameters('templateLinkBase'), 'KeyVault/KeyVault.json'), parameters('templateLinkAccessToken'))]"
+        },
+        "parameters": {
+          "deploymentId": {
+            "value": "[parameters('deploymentId')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "clusterManagedIdentityName": {
+            "value": "[parameters('clusterManagedIdentityName')]"
+          },
+          "ServiceConnectionAppObjectID": {
+            "value": "[parameters('ServiceConnectionAppObjectID')]"
+          },
+          "sitecoreAdminPassword": {
+            "value": "[parameters('sitecoreAdminPassword')]"
+          },
+          "sqlServerLogin": {
+            "value": "[parameters('sqlServerLogin')]"
+          },
+          "sqlServerPassword": {
+            "value": "[parameters('sqlServerPassword')]"
+          },
+          "smmPassword": {
+            "value": "[parameters('smmPassword')]"
+          },
+          "smmUser": {
+            "value": "[parameters('smmUser')]"
+          },
+          "corePassword": {
+            "value": "[parameters('corePassword')]"
+          },
+          "coreUser": {
+            "value": "[parameters('coreUser')]"
+          },
+          "exmmasterPassword": {
+            "value": "[parameters('exmmasterPassword')]"
+          },
+          "exmmasterUser": {
+            "value": "[parameters('exmmasterUser')]"
+          },
+          "formsPassword": {
+            "value": "[parameters('formsPassword')]"
+          },
+          "formsUser": {
+            "value": "[parameters('formsUser')]"
+          },
+          "identitycertificatepassword": {
+            "value": "[parameters('identitycertificatepassword')]"
+          },
+          "identitysecret": {
+            "value": "[parameters('identitysecret')]"
+          },
+          "maPassword": {
+            "value": "[parameters('maPassword')]"
+          },
+          "maUser": {
+            "value": "[parameters('maUser')]"
+          },
+          "masterPassword": {
+            "value": "[parameters('masterPassword')]"
+          },
+          "masterUser": {
+            "value": "[parameters('masterUser')]"
+          },
+          "mediaSharedSecret": {
+            "value": "[parameters('mediaSharedSecret')]"
+          },
+          "messagingPassword": {
+            "value": "[parameters('messagingPassword')]"
+          },
+          "messagingUser": {
+            "value": "[parameters('messagingUser')]"
+          },
+          "processingenginePassword": {
+            "value": "[parameters('processingenginePassword')]"
+          },
+          "processingengineUser": {
+            "value": "[parameters('processingengineUser')]"
+          },
+          "poolsPassword": {
+            "value": "[parameters('poolsPassword')]"
+          },
+          "poolsUser": {
+            "value": "[parameters('poolsUser')]"
+          },
+          "tasksPassword": {
+            "value": "[parameters('tasksPassword')]"
+          },
+          "tasksUser": {
+            "value": "[parameters('tasksUser')]"
+          },
+          "refdataPassword": {
+            "value": "[parameters('refdataPassword')]"
+          },
+          "refdataUser": {
+            "value": "[parameters('refdataUser')]"
+          },
+          "reportingApiKey": {
+            "value": "[parameters('reportingApiKey')]"
+          },
+          "reportingPassword": {
+            "value": "[parameters('reportingPassword')]"
+          },
+          "reportingUser": {
+            "value": "[parameters('reportingUser')]"
+          },
+          "solrConnectionString": {
+            "value": "[parameters('solrConnectionString')]"
+          },
+          "solrConnectionStringXDB": {
+            "value": "[parameters('solrConnectionStringXDB')]"
+          },
+          "solrCorePrefix": {
+            "value": "[parameters('solrCorePrefix')]"
+          },
+          "telerikEncryptionKey": {
+            "value": "[parameters('telerikEncryptionKey')]"
+          },
+          "webPassword": {
+            "value": "[parameters('webPassword')]"
+          },
+          "webUser": {
+            "value": "[parameters('webUser')]"
+          },
+          "googleApiKey": {
+            "value": "[parameters('googleApiKey')]"
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "[variables('resourcesApiVersion')]",
+      "name": "[concat(parameters('deploymentId'), '-SQL-Server')]",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(uri(parameters('templateLinkBase'), 'SQL/SitecoreSQL.json'), parameters('templateLinkAccessToken'))]"
+        },
+        "parameters": {
+          "deploymentId": {
+            "value": "[parameters('deploymentId')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "sitecoreSKU": {
+            "value": "[parameters('sitecoreSKU')]"
+          },
+          "sqlServerLogin": {
+            "value": "[parameters('sqlServerLogin')]"
+          },
+          "sqlServerPassword": {
+            "value": "[parameters('sqlServerPassword')]"
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "[variables('resourcesApiVersion')]",
+      "name": "[concat(parameters('deploymentId'), '-AppGateway')]",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(uri(parameters('templateLinkBase'), 'AppGateway/AppGateway.json'), parameters('templateLinkAccessToken'))]"
+        },
+        "parameters": {
+          "deploymentId": {
+            "value": "[parameters('deploymentId')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "clusterManagedIdentityName": {
+            "value": "[parameters('clusterManagedIdentityName')]"
+          }
+        }
+      }
+    }
+  ]
+}
