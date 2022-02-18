@@ -994,19 +994,19 @@
           }
         ]
       }
-    },
-    {
-      "type": "Microsoft.Sql/servers/virtualNetworkRules",
-      "apiVersion": "[variables('apiVersion').networkRules]",
-      "name": "[concat(variables('sqlServerNameTidy'), '/ClusterSubnet')]",
-      "dependsOn": [
-        "[variables('sqlServer_id')]"
-      ],
-      "properties": {
-        "virtualNetworkSubnetId": "[variables('spokeClusterSubnet_id')]",
-        "ignoreMissingVnetServiceEndpoint": false
-      }
     }
+    // {
+    //   "type": "Microsoft.Sql/servers/virtualNetworkRules",
+    //   "apiVersion": "[variables('apiVersion').networkRules]",
+    //   "name": "[concat(variables('sqlServerNameTidy'), '/ClusterSubnet')]",
+    //   "dependsOn": [
+    //     "[variables('sqlServer_id')]"
+    //   ],
+    //   "properties": {
+    //     "virtualNetworkSubnetId": "[variables('spokeClusterSubnet_id')]",
+    //     "ignoreMissingVnetServiceEndpoint": false
+    //   }
+    // }
   ],
   "outputs": {
     "infrastructure": {

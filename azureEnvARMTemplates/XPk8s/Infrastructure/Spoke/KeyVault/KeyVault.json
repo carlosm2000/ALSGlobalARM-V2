@@ -362,31 +362,31 @@
                 "ListIssuers"
               ]
             }
-          },
-          {
-            "tenantId": "[variables('tenantId')]",
-            "objectId": "[parameters('ServiceConnectionAppObjectID')]",
-            "permissions": {
-              "keys": [
-                "Get",
-                "List",
-                "Decrypt",
-                "Encrypt"
-              ],
-              "secrets": [
-                "Get",
-                "List"
-              ],
-              "certificates": [
-                "Get",
-                "List",
-                "Recover",
-                "Backup",
-                "ListIssuers",
-                "GetIssuers"
-              ]
-            }
           }
+          // {
+          //   "tenantId": "[variables('tenantId')]",
+          //   "objectId": "[parameters('ServiceConnectionAppObjectID')]",
+          //   "permissions": {
+          //     "keys": [
+          //       "Get",
+          //       "List",
+          //       "Decrypt",
+          //       "Encrypt"
+          //     ],
+          //     "secrets": [
+          //       "Get",
+          //       "List"
+          //     ],
+          //     "certificates": [
+          //       "Get",
+          //       "List",
+          //       "Recover",
+          //       "Backup",
+          //       "ListIssuers",
+          //       "GetIssuers"
+          //     ]
+          //   }
+          // }
         ]
       }
     },
