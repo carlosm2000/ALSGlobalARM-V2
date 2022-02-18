@@ -8,9 +8,13 @@ $deploymentName = "AlsGlobalDeployment01"
 $deploymentNamek8s = "AlsGlobalK8sDeployment01"
 $resourceGroup = "ALSGlobal-Website"
 
-$templateFile = "https://raw.githubusercontent.com/carlosm2000/AlsGlobalArm/master/azuredeploy.json?token=GHSAT0AAAAAABMBPMD4FQSPWZ3BWKLIMKQKYO55DUQ"
-$templateFilek8s = "https://raw.githubusercontent.com/carlosm2000/AlsGlobalArm/master/azuredeployk8s.json?token=GHSAT0AAAAAABMBPMD5VRAZ2WBWRD34YE2WYO55EBQ"
-$parameterFile = "https://raw.githubusercontent.com/carlosm2000/AlsGlobalArm/master/azuredeploy.parameters.json?token=GHSAT0AAAAAABMBPMD4OOH2KE37GPURRRMEYO55EAQ"
+$azuredeployFile = "https://raw.githubusercontent.com/carlosm2000/ALSGlobalARM-V2/master/azureEnvARMTemplates/XPk8s/azuredeploy.json"
+$azuredeployparametersFile = "https://raw.githubusercontent.com/carlosm2000/ALSGlobalARM-V2/master/azureEnvARMTemplates/XPk8s/azuredeploy.parameters.json"
+$azuredeployk8sFile = "https://raw.githubusercontent.com/carlosm2000/ALSGlobalARM-V2/master/azureEnvARMTemplates/XPk8s/azuredeployk8s.json"
+$azuredeployk8sparametersFile = "https://raw.githubusercontent.com/carlosm2000/ALSGlobalARM-V2/master/azureEnvARMTemplates/XPk8s/azuredeployk8s.parameters.json"
+$azuredeployNetworkFile = "https://raw.githubusercontent.com/carlosm2000/ALSGlobalARM-V2/master/azureEnvARMTemplates/XPk8s/azuredeployNetwork.json"
 
-# New-AzResourceGroupDeployment -Name $deploymentName -ResourceGroupName $resourceGroup -TemplateUri $templateFile -TemplateParameterUri $parameterFile -debug
-New-AzResourceGroupDeployment -Name $deploymentNamek8s -ResourceGroupName $resourceGroup -TemplateUri $templateFilek8s -TemplateParameterUri $parameterFile -debug
+
+New-AzResourceGroupDeployment -Name $deploymentName -ResourceGroupName $resourceGroup -TemplateUri $azuredeployFile -TemplateParameterUri $azuredeployparametersFile -debug
+New-AzResourceGroupDeployment -Name $deploymentNamek8s -ResourceGroupName $resourceGroup -TemplateUri $azuredeployk8sFile -TemplateParameterUri $azuredeployk8sparametersFile -debug
+New-AzResourceGroupDeployment -Name $deploymentNamek8s -ResourceGroupName $resourceGroup -TemplateUri $azuredeployNetworkFile -debug

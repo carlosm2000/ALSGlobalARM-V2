@@ -3,19 +3,19 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "templateLinkBase":{
-      "value": "https://bxsitecoretemplates.blob.core.windows.net/arm-templates/"
+      "value": "https://raw.githubusercontent.com/carlosm2000/ALSGlobalARM-V2/master/azureEnvARMTemplates/XPk8s/"
     },
     "templateLinkAccessToken": {
-      "value": "?sv=2020-08-04&ss=bf&srt=sco&sp=rwdlacitfx&se=2022-12-23T10:22:10Z&st=2021-12-23T02:22:10Z&spr=https&sig=a7BeN2B0XVR2SsVlW34VKGK02HNe%2FyQXnQOANmIzlFQ%3D"
+      "value": ""
     },
     "deploymentId": {
-      "value": "webfrontend-bx"
+      "value": "alsglobal"
     },
     "hubDeploymentId": {
-      "value": "webfrontend-bx"
+      "value": "alsglobal"
     },
     "location": {
-      "value": "westus2"
+      "value": "eastus"
     },
     "sitecoreSKU": {
       "value": "Small"
@@ -27,16 +27,16 @@
       "value": true
     },
     "teamAccount": {
-      "value": "nwnatural"
+      "value": "alsglobal"
     },
     "poolName": {
-      "value": "webfrontend-bx-agent-pool"
+      "value": "alsglobal-agent-pool"
     },
     "patToken": {
       "value": "cpnd4vmxid7yexr3ly6rgrat3gpsjmc2uegqyv2jozxj7q76jviq"
     },
     "additionalFilesLink": {
-      "value": "https://bxsitecoretemplates.blob.core.windows.net/arm-templates/AdditionalFiles"
+      "value": "https://raw.githubusercontent.com/carlosm2000/ALSGlobalARM-V2/master/azureEnvARMTemplates/XPk8s/AdditionalFiles"
     },
     "hubVNetAddressPrefix": {
       "value": "10.1.0.0/24"
@@ -66,13 +66,13 @@
       "value": "10.4.0.0/21"
     },
     "vmAdminUserName": {
-      "value": "NWNatural"
+      "value": "vmadminuser"
     },
     "vmAdminPassword": {
       "value": "Password12345!!"
     },
     "sqlServerLogin": {
-      "value": "NWNatural"
+      "value": "sqlserveruser"
     },
     "sqlServerPassword": {
       "value": "Password12345!!"
@@ -179,7 +179,7 @@
       "value": "http://solr:8983/solr/sitecore_xdb;solrCloud=true"
     },
     "solrCorePrefix": {
-      "value": "nwn_"
+      "value": "als_"
     },
     "telerikEncryptionKey": {
       "value": "ga6DBZFZmIG6JBdxU4OFBi5oWqgXq9t5yrLfNSY8miK7Eb8oweqHx6A1iWf4BKONj8jO6E4ndJ6W5uVgSnJpIajHYp8gP6KTietTWM3GjpFkSa3y9rkMycth50uZ84LqzrMD6F0FkXaU6fXXW1DP3jX7WGRehSUpt1HqQH48ZnbptPTGPNpx3kr9BEvgDvdGxKOwpW5BKTihktk0o4B7SlJLHhidNx8em8xXc9JQJqWA7SZj3zHZrupgeLCylGX4"
