@@ -342,54 +342,54 @@
           }
         }
       }
+    },
+    {
+      "apiVersion": "[variables('resourcesApiVersion')]",
+      "name": "[concat(parameters('deploymentId'), '-Hub')]",
+      "type": "Microsoft.Resources/deployments",
+      "condition" : "[parameters('deployHub')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments',concat(parameters('deploymentId'), '-Networking'))]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(uri(parameters('templateLinkBase'), 'Infrastructure/Hub/HubWrapper.json'), parameters('templateLinkAccessToken'))]"
+        },
+        "parameters": {
+          "templateLinkBase": {
+            "value": "[concat(parameters('templateLinkBase'),'Infrastructure/Hub/')]"
+          },
+          "templateLinkAccessToken": {
+            "value": "[parameters('templateLinkAccessToken')]"
+          },
+          "deploymentId": {
+            "value": "[parameters('hubDeploymentId')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "vmAdminUserName": {
+            "value": "[parameters('vmAdminUserName')]"
+          },
+          "vmAdminPassword": {
+            "value": "[parameters('vmAdminPassword')]"
+          },
+          "teamAccount": {
+            "value": "[parameters('teamAccount')]"
+          },
+          "poolName": {
+            "value": "[parameters('poolName')]"
+          },
+          "patToken": {
+            "value": "[parameters('patToken')]"
+          },
+          "additionalFilesLink": {
+            "value": "[parameters('additionalFilesLink')]"
+          }
+        }
+      }
     }
-    // {
-    //   "apiVersion": "[variables('resourcesApiVersion')]",
-    //   "name": "[concat(parameters('deploymentId'), '-Hub')]",
-    //   "type": "Microsoft.Resources/deployments",
-    //   "condition" : "[parameters('deployHub')]",
-    //   "dependsOn": [
-    //     "[resourceId('Microsoft.Resources/deployments',concat(parameters('deploymentId'), '-Networking'))]"
-    //   ],
-    //   "properties": {
-    //     "mode": "Incremental",
-    //     "templateLink": {
-    //       "uri": "[concat(uri(parameters('templateLinkBase'), 'Infrastructure/Hub/HubWrapper.json'), parameters('templateLinkAccessToken'))]"
-    //     },
-    //     "parameters": {
-    //       "templateLinkBase": {
-    //         "value": "[concat(parameters('templateLinkBase'),'Infrastructure/Hub/')]"
-    //       },
-    //       "templateLinkAccessToken": {
-    //         "value": "[parameters('templateLinkAccessToken')]"
-    //       },
-    //       "deploymentId": {
-    //         "value": "[parameters('hubDeploymentId')]"
-    //       },
-    //       "location": {
-    //         "value": "[parameters('location')]"
-    //       },
-    //       "vmAdminUserName": {
-    //         "value": "[parameters('vmAdminUserName')]"
-    //       },
-    //       "vmAdminPassword": {
-    //         "value": "[parameters('vmAdminPassword')]"
-    //       },
-    //       "teamAccount": {
-    //         "value": "[parameters('teamAccount')]"
-    //       },
-    //       "poolName": {
-    //         "value": "[parameters('poolName')]"
-    //       },
-    //       "patToken": {
-    //         "value": "[parameters('patToken')]"
-    //       },
-    //       "additionalFilesLink": {
-    //         "value": "[parameters('additionalFilesLink')]"
-    //       }
-    //     }
-    //   }
-    // },
     // {
     //   "apiVersion": "[variables('resourcesApiVersion')]",
     //   "name": "[concat(parameters('deploymentId'), '-Spoke')]",
