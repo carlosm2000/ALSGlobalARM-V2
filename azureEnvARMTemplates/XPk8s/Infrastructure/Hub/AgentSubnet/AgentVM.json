@@ -207,10 +207,11 @@
                 "[concat(parameters('additionalFilesLink'), '/SelfHostedAgent/ConfigureAgent.ps1', parameters('templateLinkAccessToken'))]",
                 "[concat(parameters('additionalFilesLink'), '/SelfHostedAgent/software.json', parameters('templateLinkAccessToken'))]"
               ]
-            },
-            "protectedSettings": {
-              //"commandToExecute": "[concat('powershell.exe -ExecutionPolicy ByPass -File \".\\AdditionalFiles\\SelfHostedAgent\\ConfigureAgent.ps1\" -TeamAccount \"',parameters('TeamAccount'),'\" -PoolName \"',parameters('PoolName'),'\" -PATToken \"',parameters('PATToken'),'\" ')]"
             }
+            //,
+            // "protectedSettings": {
+            //   "commandToExecute": "[concat('powershell.exe -ExecutionPolicy ByPass -File \".\\AdditionalFiles\\SelfHostedAgent\\ConfigureAgent.ps1\" -TeamAccount \"',parameters('TeamAccount'),'\" -PoolName \"',parameters('PoolName'),'\" -PATToken \"',parameters('PATToken'),'\" ')]"
+            // }
           }
         }
       ]
