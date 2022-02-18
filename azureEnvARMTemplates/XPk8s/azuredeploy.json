@@ -282,114 +282,114 @@
     }
   },
   "resources": [
-    {
-      "apiVersion": "[variables('resourcesApiVersion')]",
-      "name": "[concat(parameters('deploymentId'), '-Networking')]",
-      "type": "Microsoft.Resources/deployments",
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[concat(uri(parameters('templateLinkBase'), 'Networking/NetworkingWrapper.json'), parameters('templateLinkAccessToken'))]"
-        },
-        "parameters": {
-          "templateLinkBase": {
-            "value": "[concat(parameters('templateLinkBase'),'Networking/')]"
-          },
-          "templateLinkAccessToken": {
-            "value": "[parameters('templateLinkAccessToken')]"
-          },
-          "deploymentId": {
-            "value": "[parameters('deploymentId')]"
-          },
-          "hubDeploymentId": {
-            "value": "[parameters('hubDeploymentId')]"
-          },
-          "deployHub": {
-            "value": "[parameters('deployHub')]"
-          },
-          "deploySpoke": {
-            "value": "[parameters('deploySpoke')]"
-          },
-          "location": {
-            "value": "[parameters('location')]"
-          },
-          "hubVNetAddressPrefix": {
-            "value": "[parameters('hubVNetAddressPrefix')]"
-          },
-          "hubGatewaySubnetAddressPrefix": {
-            "value": "[parameters('hubGatewaySubnetAddressPrefix')]"
-          },
-          "hubBastionSubnetAddressPrefix": {
-            "value": "[parameters('hubBastionSubnetAddressPrefix')]"
-          },
-          "hubAgentSubnetAddressPrefix":{
-            "value": "[parameters('hubAgentSubnetAddressPrefix')]"
-          },
-          "hubFirewallSubnetAddressPrefix": {
-            "value": "[parameters('hubFirewallSubnetAddressPrefix')]"
-          },
-          "spokeVNetAddressPrefix": {
-            "value": "[parameters('spokeVNetAddressPrefix')]"
-          },
-          "spokeAppGatewaySubnetAddressPrefix": {
-            "value": "[parameters('spokeAppGatewaySubnetAddressPrefix')]"
-          },
-          "spokePrivateSubnetAddressPrefix": {
-            "value": "[parameters('spokePrivateSubnetAddressPrefix')]"
-          },
-          "spokeClusterSubnetAddressPrefix": {
-            "value": "[parameters('spokeClusterSubnetAddressPrefix')]"
-          }
-        }
-      }
-    },
-    {
-      "apiVersion": "[variables('resourcesApiVersion')]",
-      "name": "[concat(parameters('deploymentId'), '-Hub')]",
-      "type": "Microsoft.Resources/deployments",
-      "condition" : "[parameters('deployHub')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments',concat(parameters('deploymentId'), '-Networking'))]"
-      ],
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[concat(uri(parameters('templateLinkBase'), 'Infrastructure/Hub/HubWrapper.json'), parameters('templateLinkAccessToken'))]"
-        },
-        "parameters": {
-          "templateLinkBase": {
-            "value": "[concat(parameters('templateLinkBase'),'Infrastructure/Hub/')]"
-          },
-          "templateLinkAccessToken": {
-            "value": "[parameters('templateLinkAccessToken')]"
-          },
-          "deploymentId": {
-            "value": "[parameters('hubDeploymentId')]"
-          },
-          "location": {
-            "value": "[parameters('location')]"
-          },
-          "vmAdminUserName": {
-            "value": "[parameters('vmAdminUserName')]"
-          },
-          "vmAdminPassword": {
-            "value": "[parameters('vmAdminPassword')]"
-          },
-          "teamAccount": {
-            "value": "[parameters('teamAccount')]"
-          },
-          "poolName": {
-            "value": "[parameters('poolName')]"
-          },
-          "patToken": {
-            "value": "[parameters('patToken')]"
-          },
-          "additionalFilesLink": {
-            "value": "[parameters('additionalFilesLink')]"
-          }
-        }
-      }
-    },
+    // {
+    //   "apiVersion": "[variables('resourcesApiVersion')]",
+    //   "name": "[concat(parameters('deploymentId'), '-Networking')]",
+    //   "type": "Microsoft.Resources/deployments",
+    //   "properties": {
+    //     "mode": "Incremental",
+    //     "templateLink": {
+    //       "uri": "[concat(uri(parameters('templateLinkBase'), 'Networking/NetworkingWrapper.json'), parameters('templateLinkAccessToken'))]"
+    //     },
+    //     "parameters": {
+    //       "templateLinkBase": {
+    //         "value": "[concat(parameters('templateLinkBase'),'Networking/')]"
+    //       },
+    //       "templateLinkAccessToken": {
+    //         "value": "[parameters('templateLinkAccessToken')]"
+    //       },
+    //       "deploymentId": {
+    //         "value": "[parameters('deploymentId')]"
+    //       },
+    //       "hubDeploymentId": {
+    //         "value": "[parameters('hubDeploymentId')]"
+    //       },
+    //       "deployHub": {
+    //         "value": "[parameters('deployHub')]"
+    //       },
+    //       "deploySpoke": {
+    //         "value": "[parameters('deploySpoke')]"
+    //       },
+    //       "location": {
+    //         "value": "[parameters('location')]"
+    //       },
+    //       "hubVNetAddressPrefix": {
+    //         "value": "[parameters('hubVNetAddressPrefix')]"
+    //       },
+    //       "hubGatewaySubnetAddressPrefix": {
+    //         "value": "[parameters('hubGatewaySubnetAddressPrefix')]"
+    //       },
+    //       "hubBastionSubnetAddressPrefix": {
+    //         "value": "[parameters('hubBastionSubnetAddressPrefix')]"
+    //       },
+    //       "hubAgentSubnetAddressPrefix":{
+    //         "value": "[parameters('hubAgentSubnetAddressPrefix')]"
+    //       },
+    //       "hubFirewallSubnetAddressPrefix": {
+    //         "value": "[parameters('hubFirewallSubnetAddressPrefix')]"
+    //       },
+    //       "spokeVNetAddressPrefix": {
+    //         "value": "[parameters('spokeVNetAddressPrefix')]"
+    //       },
+    //       "spokeAppGatewaySubnetAddressPrefix": {
+    //         "value": "[parameters('spokeAppGatewaySubnetAddressPrefix')]"
+    //       },
+    //       "spokePrivateSubnetAddressPrefix": {
+    //         "value": "[parameters('spokePrivateSubnetAddressPrefix')]"
+    //       },
+    //       "spokeClusterSubnetAddressPrefix": {
+    //         "value": "[parameters('spokeClusterSubnetAddressPrefix')]"
+    //       }
+    //     }
+    //   }
+    // },
+    // {
+    //   "apiVersion": "[variables('resourcesApiVersion')]",
+    //   "name": "[concat(parameters('deploymentId'), '-Hub')]",
+    //   "type": "Microsoft.Resources/deployments",
+    //   "condition" : "[parameters('deployHub')]",
+    //   "dependsOn": [
+    //     "[resourceId('Microsoft.Resources/deployments',concat(parameters('deploymentId'), '-Networking'))]"
+    //   ],
+    //   "properties": {
+    //     "mode": "Incremental",
+    //     "templateLink": {
+    //       "uri": "[concat(uri(parameters('templateLinkBase'), 'Infrastructure/Hub/HubWrapper.json'), parameters('templateLinkAccessToken'))]"
+    //     },
+    //     "parameters": {
+    //       "templateLinkBase": {
+    //         "value": "[concat(parameters('templateLinkBase'),'Infrastructure/Hub/')]"
+    //       },
+    //       "templateLinkAccessToken": {
+    //         "value": "[parameters('templateLinkAccessToken')]"
+    //       },
+    //       "deploymentId": {
+    //         "value": "[parameters('hubDeploymentId')]"
+    //       },
+    //       "location": {
+    //         "value": "[parameters('location')]"
+    //       },
+    //       "vmAdminUserName": {
+    //         "value": "[parameters('vmAdminUserName')]"
+    //       },
+    //       "vmAdminPassword": {
+    //         "value": "[parameters('vmAdminPassword')]"
+    //       },
+    //       "teamAccount": {
+    //         "value": "[parameters('teamAccount')]"
+    //       },
+    //       "poolName": {
+    //         "value": "[parameters('poolName')]"
+    //       },
+    //       "patToken": {
+    //         "value": "[parameters('patToken')]"
+    //       },
+    //       "additionalFilesLink": {
+    //         "value": "[parameters('additionalFilesLink')]"
+    //       }
+    //     }
+    //   }
+    // },
     {
       "apiVersion": "[variables('resourcesApiVersion')]",
       "name": "[concat(parameters('deploymentId'), '-Spoke')]",
