@@ -36,7 +36,7 @@
       "value": "cpnd4vmxid7yexr3ly6rgrat3gpsjmc2uegqyv2jozxj7q76jviq"
     },
     "additionalFilesLink": {
-      "value": "https://raw.githubusercontent.com/carlosm2000/ALSGlobalARM-V2/master/azureEnvARMTemplates/XPk8s/AdditionalFiles"
+      "value": "https://raw.githubusercontent.com/carlosm2000/ALSGlobalARM-V2/master/azureEnvARMTemplates/XPk8s/AdditionalFiles/"
     },
     "hubVNetAddressPrefix": {
       "value": "10.1.0.0/24"

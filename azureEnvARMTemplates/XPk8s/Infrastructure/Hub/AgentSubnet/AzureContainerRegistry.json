@@ -33,7 +33,7 @@
       "type": "string",
       "minLength": 1,
       "maxLength": 50,
-      "defaultValue": "[replace(concat(parameters('deploymentId'), '-acr'),'-','')]"
+      "defaultValue": "[replace(concat(parameters('deploymentId'), '-acr-v2'),'-','')]"
     },
     "acrPrivateEndpointName": {
       "type": "string",
