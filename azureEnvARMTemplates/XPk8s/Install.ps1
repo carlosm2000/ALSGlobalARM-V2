@@ -12,9 +12,7 @@ $azuredeployFile = "https://raw.githubusercontent.com/carlosm2000/ALSGlobalARM-V
 $azuredeployparametersFile = "https://raw.githubusercontent.com/carlosm2000/ALSGlobalARM-V2/master/azureEnvARMTemplates/XPk8s/azuredeploy.parameters.json"
 $azuredeployk8sFile = "https://raw.githubusercontent.com/carlosm2000/ALSGlobalARM-V2/master/azureEnvARMTemplates/XPk8s/azuredeployk8s.json"
 $azuredeployk8sparametersFile = "https://raw.githubusercontent.com/carlosm2000/ALSGlobalARM-V2/master/azureEnvARMTemplates/XPk8s/azuredeployk8s.parameters.json"
-$azuredeployNetworkFile = "https://raw.githubusercontent.com/carlosm2000/ALSGlobalARM-V2/master/azureEnvARMTemplates/XPk8s/azuredeployNetwork.json"
 
 
-New-AzResourceGroupDeployment -Name $deploymentName -ResourceGroupName $resourceGroup -TemplateUri $azuredeployFile -TemplateParameterUri $azuredeployparametersFile -debug
-# New-AzResourceGroupDeployment -Name $deploymentNamek8s -ResourceGroupName $resourceGroup -TemplateUri $azuredeployk8sFile -TemplateParameterUri $azuredeployk8sparametersFile -debug
-# New-AzResourceGroupDeployment -Name $deploymentNamek8s -ResourceGroupName $resourceGroup -TemplateUri $azuredeployNetworkFile -debug
+# New-AzResourceGroupDeployment -Name $deploymentName -ResourceGroupName $resourceGroup -TemplateUri $azuredeployFile -TemplateParameterUri $azuredeployparametersFile -debug
+New-AzResourceGroupDeployment -Name $deploymentNamek8s -ResourceGroupName $resourceGroup -TemplateUri $azuredeployk8sFile -TemplateParameterUri $azuredeployk8sparametersFile -debug
