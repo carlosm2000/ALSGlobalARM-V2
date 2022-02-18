@@ -1,4 +1,4 @@
-# Local
+# Oshyn
 #Connect-AZAccount -Subscription 80e2f4cb-198c-49b1-ad82-da207799c3f9
 
 # ALS
@@ -16,5 +16,5 @@ $azuredeployNetworkFile = "https://raw.githubusercontent.com/carlosm2000/ALSGlob
 
 
 New-AzResourceGroupDeployment -Name $deploymentName -ResourceGroupName $resourceGroup -TemplateUri $azuredeployFile -TemplateParameterUri $azuredeployparametersFile -debug
-New-AzResourceGroupDeployment -Name $deploymentNamek8s -ResourceGroupName $resourceGroup -TemplateUri $azuredeployk8sFile -TemplateParameterUri $azuredeployk8sparametersFile -debug
-New-AzResourceGroupDeployment -Name $deploymentNamek8s -ResourceGroupName $resourceGroup -TemplateUri $azuredeployNetworkFile -debug
+# New-AzResourceGroupDeployment -Name $deploymentNamek8s -ResourceGroupName $resourceGroup -TemplateUri $azuredeployk8sFile -TemplateParameterUri $azuredeployk8sparametersFile -debug
+# New-AzResourceGroupDeployment -Name $deploymentNamek8s -ResourceGroupName $resourceGroup -TemplateUri $azuredeployNetworkFile -debug
