@@ -215,146 +215,146 @@
           }
         }
       }
-    },
-    {
-      "apiVersion": "[variables('resourcesApiVersion')]",
-      "name": "[concat(parameters('deploymentId'), '-KeyVault')]",
-      "type": "Microsoft.Resources/deployments",
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[concat(uri(parameters('templateLinkBase'), 'KeyVault/KeyVault.json'), parameters('templateLinkAccessToken'))]"
-        },
-        "parameters": {
-          "deploymentId": {
-            "value": "[parameters('deploymentId')]"
-          },
-          "location": {
-            "value": "[parameters('location')]"
-          },
-          "clusterManagedIdentityName": {
-            "value": "[parameters('clusterManagedIdentityName')]"
-          },
-          "ServiceConnectionAppObjectID": {
-            "value": "[parameters('ServiceConnectionAppObjectID')]"
-          },
-          "sitecoreAdminPassword": {
-            "value": "[parameters('sitecoreAdminPassword')]"
-          },
-          "sqlServerLogin": {
-            "value": "[parameters('sqlServerLogin')]"
-          },
-          "sqlServerPassword": {
-            "value": "[parameters('sqlServerPassword')]"
-          },
-          "smmPassword": {
-            "value": "[parameters('smmPassword')]"
-          },
-          "smmUser": {
-            "value": "[parameters('smmUser')]"
-          },
-          "corePassword": {
-            "value": "[parameters('corePassword')]"
-          },
-          "coreUser": {
-            "value": "[parameters('coreUser')]"
-          },
-          "exmmasterPassword": {
-            "value": "[parameters('exmmasterPassword')]"
-          },
-          "exmmasterUser": {
-            "value": "[parameters('exmmasterUser')]"
-          },
-          "formsPassword": {
-            "value": "[parameters('formsPassword')]"
-          },
-          "formsUser": {
-            "value": "[parameters('formsUser')]"
-          },
-          "identitycertificatepassword": {
-            "value": "[parameters('identitycertificatepassword')]"
-          },
-          "identitysecret": {
-            "value": "[parameters('identitysecret')]"
-          },
-          "maPassword": {
-            "value": "[parameters('maPassword')]"
-          },
-          "maUser": {
-            "value": "[parameters('maUser')]"
-          },
-          "masterPassword": {
-            "value": "[parameters('masterPassword')]"
-          },
-          "masterUser": {
-            "value": "[parameters('masterUser')]"
-          },
-          "mediaSharedSecret": {
-            "value": "[parameters('mediaSharedSecret')]"
-          },
-          "messagingPassword": {
-            "value": "[parameters('messagingPassword')]"
-          },
-          "messagingUser": {
-            "value": "[parameters('messagingUser')]"
-          },
-          "processingenginePassword": {
-            "value": "[parameters('processingenginePassword')]"
-          },
-          "processingengineUser": {
-            "value": "[parameters('processingengineUser')]"
-          },
-          "poolsPassword": {
-            "value": "[parameters('poolsPassword')]"
-          },
-          "poolsUser": {
-            "value": "[parameters('poolsUser')]"
-          },
-          "tasksPassword": {
-            "value": "[parameters('tasksPassword')]"
-          },
-          "tasksUser": {
-            "value": "[parameters('tasksUser')]"
-          },
-          "refdataPassword": {
-            "value": "[parameters('refdataPassword')]"
-          },
-          "refdataUser": {
-            "value": "[parameters('refdataUser')]"
-          },
-          "reportingApiKey": {
-            "value": "[parameters('reportingApiKey')]"
-          },
-          "reportingPassword": {
-            "value": "[parameters('reportingPassword')]"
-          },
-          "reportingUser": {
-            "value": "[parameters('reportingUser')]"
-          },
-          "solrConnectionString": {
-            "value": "[parameters('solrConnectionString')]"
-          },
-          "solrConnectionStringXDB": {
-            "value": "[parameters('solrConnectionStringXDB')]"
-          },
-          "solrCorePrefix": {
-            "value": "[parameters('solrCorePrefix')]"
-          },
-          "telerikEncryptionKey": {
-            "value": "[parameters('telerikEncryptionKey')]"
-          },
-          "webPassword": {
-            "value": "[parameters('webPassword')]"
-          },
-          "webUser": {
-            "value": "[parameters('webUser')]"
-          },
-          "googleApiKey": {
-            "value": "[parameters('googleApiKey')]"
-          }
-        }
-      }
-    },
+    }
+    // {
+    //   "apiVersion": "[variables('resourcesApiVersion')]",
+    //   "name": "[concat(parameters('deploymentId'), '-KeyVault')]",
+    //   "type": "Microsoft.Resources/deployments",
+    //   "properties": {
+    //     "mode": "Incremental",
+    //     "templateLink": {
+    //       "uri": "[concat(uri(parameters('templateLinkBase'), 'KeyVault/KeyVault.json'), parameters('templateLinkAccessToken'))]"
+    //     },
+    //     "parameters": {
+    //       "deploymentId": {
+    //         "value": "[parameters('deploymentId')]"
+    //       },
+    //       "location": {
+    //         "value": "[parameters('location')]"
+    //       },
+    //       "clusterManagedIdentityName": {
+    //         "value": "[parameters('clusterManagedIdentityName')]"
+    //       },
+    //       "ServiceConnectionAppObjectID": {
+    //         "value": "[parameters('ServiceConnectionAppObjectID')]"
+    //       },
+    //       "sitecoreAdminPassword": {
+    //         "value": "[parameters('sitecoreAdminPassword')]"
+    //       },
+    //       "sqlServerLogin": {
+    //         "value": "[parameters('sqlServerLogin')]"
+    //       },
+    //       "sqlServerPassword": {
+    //         "value": "[parameters('sqlServerPassword')]"
+    //       },
+    //       "smmPassword": {
+    //         "value": "[parameters('smmPassword')]"
+    //       },
+    //       "smmUser": {
+    //         "value": "[parameters('smmUser')]"
+    //       },
+    //       "corePassword": {
+    //         "value": "[parameters('corePassword')]"
+    //       },
+    //       "coreUser": {
+    //         "value": "[parameters('coreUser')]"
+    //       },
+    //       "exmmasterPassword": {
+    //         "value": "[parameters('exmmasterPassword')]"
+    //       },
+    //       "exmmasterUser": {
+    //         "value": "[parameters('exmmasterUser')]"
+    //       },
+    //       "formsPassword": {
+    //         "value": "[parameters('formsPassword')]"
+    //       },
+    //       "formsUser": {
+    //         "value": "[parameters('formsUser')]"
+    //       },
+    //       "identitycertificatepassword": {
+    //         "value": "[parameters('identitycertificatepassword')]"
+    //       },
+    //       "identitysecret": {
+    //         "value": "[parameters('identitysecret')]"
+    //       },
+    //       "maPassword": {
+    //         "value": "[parameters('maPassword')]"
+    //       },
+    //       "maUser": {
+    //         "value": "[parameters('maUser')]"
+    //       },
+    //       "masterPassword": {
+    //         "value": "[parameters('masterPassword')]"
+    //       },
+    //       "masterUser": {
+    //         "value": "[parameters('masterUser')]"
+    //       },
+    //       "mediaSharedSecret": {
+    //         "value": "[parameters('mediaSharedSecret')]"
+    //       },
+    //       "messagingPassword": {
+    //         "value": "[parameters('messagingPassword')]"
+    //       },
+    //       "messagingUser": {
+    //         "value": "[parameters('messagingUser')]"
+    //       },
+    //       "processingenginePassword": {
+    //         "value": "[parameters('processingenginePassword')]"
+    //       },
+    //       "processingengineUser": {
+    //         "value": "[parameters('processingengineUser')]"
+    //       },
+    //       "poolsPassword": {
+    //         "value": "[parameters('poolsPassword')]"
+    //       },
+    //       "poolsUser": {
+    //         "value": "[parameters('poolsUser')]"
+    //       },
+    //       "tasksPassword": {
+    //         "value": "[parameters('tasksPassword')]"
+    //       },
+    //       "tasksUser": {
+    //         "value": "[parameters('tasksUser')]"
+    //       },
+    //       "refdataPassword": {
+    //         "value": "[parameters('refdataPassword')]"
+    //       },
+    //       "refdataUser": {
+    //         "value": "[parameters('refdataUser')]"
+    //       },
+    //       "reportingApiKey": {
+    //         "value": "[parameters('reportingApiKey')]"
+    //       },
+    //       "reportingPassword": {
+    //         "value": "[parameters('reportingPassword')]"
+    //       },
+    //       "reportingUser": {
+    //         "value": "[parameters('reportingUser')]"
+    //       },
+    //       "solrConnectionString": {
+    //         "value": "[parameters('solrConnectionString')]"
+    //       },
+    //       "solrConnectionStringXDB": {
+    //         "value": "[parameters('solrConnectionStringXDB')]"
+    //       },
+    //       "solrCorePrefix": {
+    //         "value": "[parameters('solrCorePrefix')]"
+    //       },
+    //       "telerikEncryptionKey": {
+    //         "value": "[parameters('telerikEncryptionKey')]"
+    //       },
+    //       "webPassword": {
+    //         "value": "[parameters('webPassword')]"
+    //       },
+    //       "webUser": {
+    //         "value": "[parameters('webUser')]"
+    //       },
+    //       "googleApiKey": {
+    //         "value": "[parameters('googleApiKey')]"
+    //       }
+    //     }
+    //   }
+    // },
     {
       "apiVersion": "[variables('resourcesApiVersion')]",
       "name": "[concat(parameters('deploymentId'), '-SQL-Server')]",
