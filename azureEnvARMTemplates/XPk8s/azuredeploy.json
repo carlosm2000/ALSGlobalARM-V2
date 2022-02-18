@@ -396,7 +396,8 @@
       "type": "Microsoft.Resources/deployments",
       "condition" : "[parameters('deploySpoke')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments',concat(parameters('deploymentId'), '-Networking'))]"
+        "[resourceId('Microsoft.Resources/deployments',concat(parameters('deploymentId'), '-Networking'))]",
+        "[resourceId('Microsoft.Resources/deployments',concat(parameters('deploymentId'), '-Hub'))]"
       ],
       "properties": {
         "mode": "Incremental",
