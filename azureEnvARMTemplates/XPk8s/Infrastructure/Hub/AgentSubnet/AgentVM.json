@@ -209,7 +209,7 @@
               ]
             },
             "protectedSettings": {
-              "commandToExecute": "[concat('powershell.exe -ExecutionPolicy ByPass -File \".\\AdditionalFiles\\SelfHostedAgent\\ConfigureAgent.ps1\" -TeamAccount \"',parameters('TeamAccount'),'\" -PoolName \"',parameters('PoolName'),'\" -PATToken \"',parameters('PATToken'),'\" ')]"
+              //"commandToExecute": "[concat('powershell.exe -ExecutionPolicy ByPass -File \".\\AdditionalFiles\\SelfHostedAgent\\ConfigureAgent.ps1\" -TeamAccount \"',parameters('TeamAccount'),'\" -PoolName \"',parameters('PoolName'),'\" -PATToken \"',parameters('PATToken'),'\" ')]"
             }
           }
         }
