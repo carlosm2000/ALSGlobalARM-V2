@@ -9,10 +9,10 @@
       "value": ""
     },
     "deploymentId": {
-      "value": "alsglobal"
+      "value": "alsglobalv2"
     },
     "hubDeploymentId": {
-      "value": "alsglobal"
+      "value": "alsglobalv2"
     },
     "location": {
       "value": "eastus"
@@ -27,7 +27,7 @@
       "value": true
     },
     "teamAccount": {
-      "value": "alsglobal"
+      "value": "alsglobalv2"
     },
     "poolName": {
       "value": "alsglobal-agent-pool"
@@ -78,7 +78,7 @@
       "value": "Password12345!!"
     },
     "clusterManagedIdentityName": {
-      "value": "siteCoreBxMngIdent"
+      "value": "siteCoreAlsMngIdent"
     },
     "ServiceConnectionAppObjectID": {
       "value": "123456789"

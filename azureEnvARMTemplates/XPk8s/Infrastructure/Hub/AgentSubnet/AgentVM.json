@@ -68,13 +68,13 @@
       "defaultValue": "[concat(parameters('deploymentId'), '-Agent-Subnet')]"
     },
     "TeamAccount": {
-        "type": "string"
+      "type": "string"
     },
     "PoolName": {
-        "type": "string"
+      "type": "string"
     },
     "PATToken": {
-        "type": "securestring"
+      "type": "securestring"
     },
     "additionalFilesLink": {
       "type": "string",
@@ -93,17 +93,17 @@
       "kind": "Storage"
     },
     {
-        "comments": "Public IP address for Agent VM",
-        "apiVersion": "[variables('apiVersion').publicIp]",
-        "type": "Microsoft.Network/publicIPAddresses",
-        "name": "[variables('agentPublicIPNameTidy')]",
-        "location": "[parameters('location')]",
-        "sku": {
-            "name": "Standard"
-        },
-        "properties": {
-            "publicIPAllocationMethod": "Static"
-        }
+      "comments": "Public IP address for Agent VM",
+      "apiVersion": "[variables('apiVersion').publicIp]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('agentPublicIPNameTidy')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Static"
+      }
     },
     {
       "comments": "Network Interface card for Agent VM",
@@ -187,33 +187,33 @@
             "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts', variables('agentStorageAccountName'))).primaryEndpoints.blob]"
           }
         }
-      },
-      "resources": [
-        {
-          "type": "extensions",
-          "name": "AzureDevOpsAgent",
-          "apiVersion": "2018-06-01",
-          "location": "[parameters('location')]",
-          "dependsOn": [
-            "[concat('Microsoft.Compute/virtualMachines/', variables('agentVMNameTidy'))]"
-          ],
-          "properties": {
-            "publisher": "Microsoft.Compute",
-            "type": "CustomScriptExtension",
-            "autoUpgradeMinorVersion": true,
-            "typeHandlerVersion": "1.9",
-            "settings": {
-              "fileUris": [
-                "[concat(parameters('additionalFilesLink'), '/SelfHostedAgent/ConfigureAgent.ps1', parameters('templateLinkAccessToken'))]",
-                "[concat(parameters('additionalFilesLink'), '/SelfHostedAgent/software.json', parameters('templateLinkAccessToken'))]"
-              ]
-            }            ,
-            "protectedSettings": {
-              "commandToExecute": "[concat('powershell.exe -ExecutionPolicy ByPass -File \".\\AdditionalFiles\\SelfHostedAgent\\ConfigureAgent.ps1\" -TeamAccount \"',parameters('TeamAccount'),'\" -PoolName \"',parameters('PoolName'),'\" -PATToken \"',parameters('PATToken'),'\" ')]"
-            }
-          }
-        }
-      ]
+      }
+      // "resources": [
+      //   // {
+      //   //   "type": "extensions",
+      //   //   "name": "AzureDevOpsAgent",
+      //   //   "apiVersion": "2018-06-01",
+      //   //   "location": "[parameters('location')]",
+      //   //   "dependsOn": [
+      //   //     "[concat('Microsoft.Compute/virtualMachines/', variables('agentVMNameTidy'))]"
+      //   //   ],
+      //   //   "properties": {
+      //   //     "publisher": "Microsoft.Compute",
+      //   //     "type": "CustomScriptExtension",
+      //   //     "autoUpgradeMinorVersion": true,
+      //   //     "typeHandlerVersion": "1.9",
+      //   //     "settings": {
+      //   //       "fileUris": [
+      //   //         "[concat(parameters('additionalFilesLink'), '/SelfHostedAgent/ConfigureAgent.ps1', parameters('templateLinkAccessToken'))]",
+      //   //         "[concat(parameters('additionalFilesLink'), '/SelfHostedAgent/software.json', parameters('templateLinkAccessToken'))]"
+      //   //       ]
+      //   //     },
+      //   //     "protectedSettings": {
+      //   //       "commandToExecute": "[concat('powershell.exe -ExecutionPolicy ByPass -File \".\\AdditionalFiles\\SelfHostedAgent\\ConfigureAgent.ps1\" -TeamAccount \"',parameters('TeamAccount'),'\" -PoolName \"',parameters('PoolName'),'\" -PATToken \"',parameters('PATToken'),'\" ')]"
+      //   //     }
+      //   //   }
+      //   // }
+      // ]
     }
   ]
 }
