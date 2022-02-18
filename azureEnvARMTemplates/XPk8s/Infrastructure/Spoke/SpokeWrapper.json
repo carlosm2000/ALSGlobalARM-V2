@@ -215,7 +215,7 @@
           }
         }
       }
-    }
+    },
     // {
     //   "apiVersion": "[variables('resourcesApiVersion')]",
     //   "name": "[concat(parameters('deploymentId'), '-KeyVault')]",
