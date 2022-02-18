@@ -333,11 +333,11 @@
         "networkAcls": {
           "bypass": "AzureServices",
           "defaultAction": "Deny",
-          "ipRules": [
-            {
-              "value": "[concat(reference(resourceId('Microsoft.Network/publicIPAddresses',variables('agentPublicIPNameTidy'))).IpAddress,'/32')]"
-            }
-          ],
+          // "ipRules": [
+          //   {
+          //     "value": "[concat(reference(resourceId('Microsoft.Network/publicIPAddresses',variables('agentPublicIPNameTidy'))).IpAddress,'/32')]"
+          //   }
+          // ],
           "virtualNetworkRules": []
         },
         "enabledForDeployment": false,
