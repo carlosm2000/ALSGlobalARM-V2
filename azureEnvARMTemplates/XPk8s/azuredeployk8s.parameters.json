@@ -3,16 +3,16 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "templateLinkBase":{
-      "value": "https://bxsitecoretemplates.blob.core.windows.net/arm-templates/"
+      "value": "https://raw.githubusercontent.com/carlosm2000/ALSGlobalARM-V2/master/azureEnvARMTemplates/XPk8s/"
     },
     "templateLinkAccessToken": {
-      "value": "?sv=2020-08-04&ss=bf&srt=sco&sp=rwdlacitfx&se=2022-12-23T10:22:10Z&st=2021-12-23T02:22:10Z&spr=https&sig=a7BeN2B0XVR2SsVlW34VKGK02HNe%2FyQXnQOANmIzlFQ%3D"
+      "value": ""
     },
     "deploymentId": {
-      "value": "webfrontend-bx"
+      "value": "alsglobalv2"
     },
     "location": {
-      "value": "westus2"
+      "value": "eastus"
     },
     "sitecoreSKU": {
       "value": "Small"
@@ -30,22 +30,22 @@
       "value": "10.4.8.10"
     },
     "clusterDnsPrefix": {
-      "value": "webfrontend-bx-aks"
+      "value": "alsglobalv2-aks"
     },
     "kubernetesVersion": {
       "value": "1.21.7"
     },
     "clusterManagedIdentityName": {
-      "value": "siteCoreBxMngIdent"
+      "value": "siteCoreAlsMngIdent"
     },
     "clusterWindowsUsername": {
-      "value": "NWNatural"
+      "value": "clusterwindowsuser"
     },
     "clusterWindowsPassword": {
       "value": "Password12345!!"
     },
     "clusterLinuxUsername": {
-      "value": "NWNatural"
+      "value": "clusterlinuxuser"
     },
     "clusterLinuxSSHKey": {
       "value": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCkbTBsRdu7RYAWdDO9Gb5reANvfXa6HnugrLIcRaC6cCjhyPBabFj4NIfE/M4Tps2Q81LCFGGxkUK7peNT2f/VievI4kTCSCXbrAJA0WVpga7HY43EQhHC3+jwnik5ioViQAMAiozNtMqg4p1U4CcydLroTNQdWJ+xg88RrddtK/0kSdYJmectawHbaW0BD3j8SLdRVAg/QkCZuOSwL7xKHBpaqKA5ywQU0qhNgvq/waY7KWKVFj9ny2gDlg7PMKZGQ9+hRT0xvX8ghFWwPWr6ML0exSIuPl+fMRKugq4HTiWL8KtWekknbG2ALsuYLtj94TAbIctUGX58Nf0/AuUbhPwiyPJRQ7Nc7G0hzkKWf1UnkS9DoXYlP+6X2zCky5xGS3Py4EFvOWgyvz7In9lKurE9f37tLla++Wq4Z/nzNuhaSJIxzvjm6pLBK57DVXD4cyr8TsU+r6GR8golxTiEDmJzcWuCwsxrBf8dDZStKvdlyA2ntYGGTEDjRGqy1WE= esteban capello@DESKTOP-D1AVU30"
