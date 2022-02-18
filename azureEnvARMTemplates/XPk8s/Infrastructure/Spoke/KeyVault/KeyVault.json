@@ -10,11 +10,11 @@
     },
     "keyVaultNameTidy": "[toLower(trim(parameters('keyVaultName')))]",
     "tenantId": "[subscription().tenantId]",
-    "keyvaultPrivateEndpointNameTidy":"[toLower(trim(parameters('keyvaultPrivateEndpointName')))]",
+    "keyvaultPrivateEndpointNameTidy": "[toLower(trim(parameters('keyvaultPrivateEndpointName')))]",
     "spokeVNetNameTidy": "[toLower(trim(parameters('spokeVNetName')))]",
     "spokePrivateSubnetNameTidy": "[toLower(trim(parameters('spokePrivateSubnetName')))]",
     "sqlServerNameTidy": "[toLower(trim(parameters('sqlServerName')))]",
-    "elasticPoolNameTidy":"[toLower(trim(parameters('elasticPoolName')))]",
+    "elasticPoolNameTidy": "[toLower(trim(parameters('elasticPoolName')))]",
     "agentPublicIPNameTidy": "[toLower(trim(parameters('agentPublicIPName')))]",
     "keyvaultPrivateDnsZoneName": "privatelink.vaultcore.azure.net",
 
@@ -155,7 +155,7 @@
       "minLength": 1,
       "defaultValue": "[concat(parameters('deploymentId'), '-reporting-db')]"
     },
-    "messagingSqlDatabaseName":{
+    "messagingSqlDatabaseName": {
       "type": "string",
       "minLength": 1,
       "defaultValue": "[concat(parameters('deploymentId'), '-messaging-db')]"
@@ -333,6 +333,11 @@
         "networkAcls": {
           "bypass": "AzureServices",
           "defaultAction": "Deny",
+          "ipRules": [
+            {
+              "value": "[concat(reference(resourceId('Microsoft.Network/publicIPAddresses',variables('agentPublicIPNameTidy'))).IpAddress,'/32')]"
+            }
+          ],
           "virtualNetworkRules": []
         },
         "enabledForDeployment": false,
@@ -407,13 +412,13 @@
       "name": "[concat(variables('keyvaultPrivateDnsZoneName'), '/kv_private_link')]",
       "location": "global",
       "dependsOn": [
-          "[variables('keyvaultPrivateDnsZone_id')]"
+        "[variables('keyvaultPrivateDnsZone_id')]"
       ],
       "properties": {
-          "virtualNetwork": {
-              "id": "[variables('spokeVNet_id')]"
-          },
-          "registrationEnabled": false
+        "virtualNetwork": {
+          "id": "[variables('spokeVNet_id')]"
+        },
+        "registrationEnabled": false
       }
     },
     {
@@ -428,16 +433,16 @@
         "privateLinkServiceConnections": [
           {
             "name": "[variables('keyvaultPrivateEndpointNameTidy')]",
-              "properties": {
-                "privateLinkServiceId": "[variables('keyvault_id')]",
-                "groupIds": [
-                    "vault"
-                ]
-              }
+            "properties": {
+              "privateLinkServiceId": "[variables('keyvault_id')]",
+              "groupIds": [
+                "vault"
+              ]
+            }
           }
         ],
         "subnet": {
-            "id": "[variables('spokePrivateSubnet_id')]"
+          "id": "[variables('spokePrivateSubnet_id')]"
         }
       }
     },
@@ -466,7 +471,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-adminpassword')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -479,7 +484,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-collection-shardmapmanager-database')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -492,7 +497,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-collection-shardmapmanager-database-password')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -505,7 +510,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-collection-shardmapmanager-database-username')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -518,7 +523,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-core-database')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -531,7 +536,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-core-database-password')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -544,7 +549,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-core-database-username')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -557,7 +562,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-database-elastic-pool-name')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -570,7 +575,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-databasepassword')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -583,7 +588,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-databaseservername')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -596,7 +601,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-databaseusername')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -609,7 +614,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-exm-master-database')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -622,7 +627,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-exm-master-database-password')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -635,7 +640,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-exm-master-database-username')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -648,7 +653,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-forms-database')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -661,7 +666,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-forms-database-password')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -674,7 +679,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-forms-database-username')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -687,7 +692,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-identitycertificatepassword')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -700,7 +705,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-identitysecret')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -713,7 +718,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-marketing-automation-database')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -726,7 +731,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-marketing-automation-database-password')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -739,7 +744,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-marketing-automation-database-username')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -752,7 +757,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-master-database')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -765,7 +770,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-master-database-password')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -778,7 +783,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-master-database-username')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -791,7 +796,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-media-request-protection-shared-secret')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -804,7 +809,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-messaging-database')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -817,7 +822,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-messaging-database-password')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -830,7 +835,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-messaging-database-username')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -843,7 +848,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-processing-engine-storage-database')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -856,7 +861,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-processing-engine-storage-database-password')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -869,7 +874,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-processing-engine-storage-database-username')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -882,7 +887,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-processing-engine-tasks-database')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -895,7 +900,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-processing-engine-tasks-database-password')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -908,7 +913,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-processing-engine-tasks-database-username')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -921,7 +926,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-processing-pools-database')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -934,7 +939,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-processing-pools-database-password')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -947,7 +952,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-processing-pools-database-username')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -960,7 +965,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-processing-tasks-database')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -973,7 +978,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-processing-tasks-database-password')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -986,7 +991,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-processing-tasks-database-username')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -999,7 +1004,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-reference-data-database')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -1012,7 +1017,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-reference-data-database-password')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -1025,7 +1030,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-reference-data-database-username')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -1038,7 +1043,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-reportingapikey')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -1051,7 +1056,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-reporting-database')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -1064,7 +1069,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-reporting-database-password')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -1077,7 +1082,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-reporting-database-username')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -1090,7 +1095,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-solr-connection-string')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -1103,7 +1108,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-solr-connection-string-xdb')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -1116,7 +1121,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-solr-core-prefix-name')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -1129,7 +1134,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-telerikencryptionkey')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -1142,7 +1147,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-web-database')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -1155,7 +1160,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-web-database-password')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -1168,7 +1173,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'sitecore-web-database-username')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {
@@ -1181,7 +1186,7 @@
       "apiVersion": "[variables('apiVersion').keyvault]",
       "name": "[format('{0}/{1}', variables('keyVaultNameTidy'), 'google-apikey')]",
       "location": "[parameters('location')]",
-      "dependsOn":[
+      "dependsOn": [
         "[variables('keyvault_id')]"
       ],
       "properties": {

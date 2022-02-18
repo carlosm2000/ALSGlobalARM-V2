@@ -21,10 +21,10 @@
       "value": "Small"
     },
     "deployHub": {
-      "value": true
+      "value": false
     },
     "deploySpoke": {
-      "value": false
+      "value": true
     },
     "teamAccount": {
       "value": "alsglobalv2"
