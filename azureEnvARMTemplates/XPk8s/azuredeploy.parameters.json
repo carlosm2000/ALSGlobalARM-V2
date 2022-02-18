@@ -24,7 +24,7 @@
       "value": true
     },
     "deploySpoke": {
-      "value": true
+      "value": false
     },
     "teamAccount": {
       "value": "alsglobalv2"
