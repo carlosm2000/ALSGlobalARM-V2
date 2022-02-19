@@ -87,28 +87,28 @@
     }
   },
   "resources": [
-    {
-      "apiVersion": "[variables('resourcesApiVersion')]",
-      "name": "[concat(parameters('deploymentId'), '-container-insights')]",
-      "type": "Microsoft.Resources/deployments",
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[concat(uri(parameters('templateLinkBase'), 'ContainerInsights.json'), parameters('templateLinkAccessToken'))]"
-        },
-        "parameters": {
-          "deploymentId": {
-            "value": "[parameters('deploymentId')]"
-          },
-          "location": {
-            "value": "[parameters('location')]"
-          },
-          "sitecoreSKU": {
-            "value": "[parameters('sitecoreSKU')]"
-          }
-        }
-      }
-    },
+    // {
+    //   "apiVersion": "[variables('resourcesApiVersion')]",
+    //   "name": "[concat(parameters('deploymentId'), '-container-insights')]",
+    //   "type": "Microsoft.Resources/deployments",
+    //   "properties": {
+    //     "mode": "Incremental",
+    //     "templateLink": {
+    //       "uri": "[concat(uri(parameters('templateLinkBase'), 'ContainerInsights.json'), parameters('templateLinkAccessToken'))]"
+    //     },
+    //     "parameters": {
+    //       "deploymentId": {
+    //         "value": "[parameters('deploymentId')]"
+    //       },
+    //       "location": {
+    //         "value": "[parameters('location')]"
+    //       },
+    //       "sitecoreSKU": {
+    //         "value": "[parameters('sitecoreSKU')]"
+    //       }
+    //     }
+    //   }
+    // },
     {
       "apiVersion": "[variables('resourcesApiVersion')]",
       "name": "[concat(parameters('deploymentId'), '-k8s-cluster')]",
