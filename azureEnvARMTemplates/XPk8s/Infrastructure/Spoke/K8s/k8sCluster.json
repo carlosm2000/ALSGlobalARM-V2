@@ -267,7 +267,7 @@
         },
         "addonProfiles": {
           "kubeDashboard": {
-            "enabled": true
+            "enabled": false
           },
           "httpApplicationRouting": {
             "enabled": true
