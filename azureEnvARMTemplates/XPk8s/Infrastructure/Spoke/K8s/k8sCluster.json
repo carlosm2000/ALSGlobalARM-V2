@@ -309,7 +309,7 @@
           "networkPolicy": "calico"
         },
         "apiServerAccessProfile": {
-          "enablePrivateCluster": true
+          "enablePrivateCluster": false
         },
         "agentPoolProfiles": [
           {
