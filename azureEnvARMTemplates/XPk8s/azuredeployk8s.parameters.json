@@ -9,10 +9,10 @@
       "value": ""
     },
     "deploymentId": {
-      "value": "alsglobalv2"
+      "value": "alsglobalqa"
     },
     "location": {
-      "value": "westus2"
+      "value": "centralus"
     },
     "sitecoreSKU": {
       "value": "Small"
@@ -30,13 +30,13 @@
       "value": "10.4.8.10"
     },
     "clusterDnsPrefix": {
-      "value": "alsglobalv2-aks"
+      "value": "alsglobalqa-aks"
     },
     "kubernetesVersion": {
       "value": "1.21.7"
     },
     "clusterManagedIdentityName": {
-      "value": "siteCoreAlsMngIdent"
+      "value": "alsManagedIdentity"
     },
     "clusterWindowsUsername": {
       "value": "clusterwindowsuser"
