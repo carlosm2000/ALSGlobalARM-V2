@@ -9,31 +9,31 @@
       "value": ""
     },
     "deploymentId": {
-      "value": "alsglobalv2"
+      "value": "alsglobalqa"
     },
     "hubDeploymentId": {
-      "value": "alsglobalv2"
+      "value": "alsglobalqa"
     },
     "location": {
-      "value": "westus2"
+      "value": "centralus"
     },
     "sitecoreSKU": {
       "value": "Small"
     },
     "deployHub": {
-      "value": false
-    },
-    "deploySpoke": {
       "value": true
     },
+    "deploySpoke": {
+      "value": false
+    },
     "teamAccount": {
-      "value": "alsglobalv2"
+      "value": "alsglobalqa"
     },
     "poolName": {
-      "value": "alsglobal-agent-pool"
+      "value": "alsglobalqa-agent-pool"
     },
     "patToken": {
-      "value": "uo4zitsewmmd4sjmv3flencdjc2sarutgtj5sng4c54g6umd57xq"
+      "value": "7kaxjqz667xjkmtgm52cnersc2p2pzrhpjdtnwi32zdifugb7lxq"
     },
     "additionalFilesLink": {
       "value": "https://raw.githubusercontent.com/carlosm2000/ALSGlobalARM-V2/master/azureEnvARMTemplates/XPk8s/AdditionalFiles/"
@@ -78,7 +78,7 @@
       "value": "Password12345!!"
     },
     "clusterManagedIdentityName": {
-      "value": "siteCoreAlsMngIdent"
+      "value": "alsManagedIdentity"
     },
     "ServiceConnectionAppObjectID": {
       "value": "123456789"
