@@ -170,7 +170,7 @@
     },
     {
       "apiVersion": "[variables('resourcesApiVersion')]",
-      "name": "[concat(parameters('deploymentId'), '-acr-v2')]",
+      "name": "[concat(parameters('deploymentId'), '-acr')]",
       "type": "Microsoft.Resources/deployments",
       "properties": {
         "mode": "Incremental",
