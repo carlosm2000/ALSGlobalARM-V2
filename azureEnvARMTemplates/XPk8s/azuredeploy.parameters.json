@@ -21,7 +21,7 @@
       "value": "Small"
     },
     "deployHub": {
-      "value": false
+      "value": true
     },
     "deploySpoke": {
       "value": true
