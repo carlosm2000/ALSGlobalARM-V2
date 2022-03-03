@@ -87,7 +87,6 @@
     }
   },
   "resources": [
-    // ***** Uncomment this to get Container Insights for AKS ******
     // {
     //   "apiVersion": "[variables('resourcesApiVersion')]",
     //   "name": "[concat(parameters('deploymentId'), '-container-insights')]",

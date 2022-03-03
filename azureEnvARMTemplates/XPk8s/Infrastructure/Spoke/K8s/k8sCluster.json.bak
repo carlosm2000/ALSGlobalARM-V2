@@ -266,9 +266,9 @@
           }
         },
         "addonProfiles": {
-          "kubeDashboard": {
-            "enabled": false
-          },
+          // "kubeDashboard": {
+          //   "enabled": false
+          // },
           "httpApplicationRouting": {
             "enabled": true
           },
