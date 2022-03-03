@@ -9,28 +9,28 @@
       "value": ""
     },
     "deploymentId": {
-      "value": "alsglobalqa"
+      "value": "alsglobalqav2"
     },
     "hubDeploymentId": {
-      "value": "alsglobalqa"
+      "value": "alsglobalqav2"
     },
     "location": {
-      "value": "centralus"
+      "value": "westus2"
     },
     "sitecoreSKU": {
       "value": "Small"
     },
     "deployHub": {
-      "value": false
-    },
-    "deploySpoke": {
       "value": true
     },
+    "deploySpoke": {
+      "value": false
+    },
     "teamAccount": {
-      "value": "alsglobalqa"
+      "value": "alsglobalqav2"
     },
     "poolName": {
-      "value": "alsglobalqa-agent-pool"
+      "value": "alsglobalqav2-agent-pool"
     },
     "patToken": {
       "value": "7kaxjqz667xjkmtgm52cnersc2p2pzrhpjdtnwi32zdifugb7lxq"

@@ -9,10 +9,10 @@
       "value": ""
     },
     "deploymentId": {
-      "value": "alsglobalqa"
+      "value": "alsglobalqav2"
     },
     "location": {
-      "value": "centralus"
+      "value": "westus2"
     },
     "sitecoreSKU": {
       "value": "Small"
@@ -30,7 +30,7 @@
       "value": "10.4.8.10"
     },
     "clusterDnsPrefix": {
-      "value": "alsglobalqa-aks"
+      "value": "alsglobalqav2-aks"
     },
     "kubernetesVersion": {
       "value": "1.21.7"

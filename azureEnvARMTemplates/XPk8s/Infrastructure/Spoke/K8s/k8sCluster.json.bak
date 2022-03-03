@@ -266,18 +266,18 @@
           }
         },
         "addonProfiles": {
-          "kubeDashboard": {
-            "enabled": false
-          },
+          // "kubeDashboard": {
+          //   "enabled": false
+          // },
           "httpApplicationRouting": {
             "enabled": true
           },
-          "omsagent": {
-            "enabled": true,
-            "config": {
-              "logAnalyticsWorkspaceResourceID": "[variables('insigthsWorkspace_id')]"
-            }
-          },
+          // "omsagent": {
+          //   "enabled": true,
+          //   "config": {
+          //     "logAnalyticsWorkspaceResourceID": "[variables('insigthsWorkspace_id')]"
+          //   }
+          // },
           "aciConnectorLinux": {
             "enabled": false
           },
